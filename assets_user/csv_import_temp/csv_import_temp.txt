@@ -1,0 +1,7 @@
+case 'POST':
+        $firstName = $_POST['firstName'],
+        $lastName = $_POST['lastName'],
+        $batch = $_POST['Batch'];
+
+        $sql = "INSERT INTO students (firstName, lastName , Batch) VALUES ('$firstName', '$lastName', '$batch')";
+            break;

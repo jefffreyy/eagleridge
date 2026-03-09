@@ -1,0 +1,513 @@
+<html>
+<?php $this->load->view('templates/css_link'); ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
+<style>
+    .handsontable .wtHolder .wtHider{
+        /* margin-bottom: 50px; */
+        height: 70vh !important;
+    }
+</style>
+<body>
+    <div class="content-wrapper">
+        <div class="p-3">
+            <div class="flex-fill">
+                <div class="row pr-3 mb-3">
+                    <div class="col">
+                    <h1 class="page-title"><a href="<?= base_url('teams/apply_leaves') ?>"><img style="width: 24px; height: 24px; margin-bottom: 3px;" src="<?= base_url('assets_system/icons/circle-left-duotone.svg') ?>" alt="" />
+            </a>&nbsp;Add Leaves<h1>
+                        <!-- <h1 class="page-title"><a href="<?= site_url('teams/apply_leaves'); ?>"><i class="fa-duotone fa-circle-left"></i></a>&nbsp;Add Leaves</h1> -->
+                    </div>
+                    <div class="col ml-auto button-title">
+         
+                        <button class="btn btn-primary" id="btn-insert"><i class="fa-solid fa-circle-arrow-up"></i> Upload Data</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="col mb-5 mt-2">
+                        <button class="btn btn-success" id="btn-add-row"><i class="fa-duotone fa-circle-plus"></i> Add Row</button>
+                        <button class="btn btn-danger" id="btn-delete-row"><i class="fa-duotone fa-circle-minus"></i> Delete Row</button>
+                    </div>
+                    <p style="margin:0;padding:4px;color: #dc3545;">Employee, Leave Date, Leave Duration are required*</p>
+                    <div id="example"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php $this->load->view('templates/jquery_link'); ?>
+
+    <?php
+    if ($this->session->userdata('success')) {
+    ?>
+        <script>Swal.fire('<?php echo $this->session->userdata('success'); ?>','','success')</script>
+    <?php $this->session->unset_userdata('success');
+    }
+    ?>
+    <?php
+    if ($this->session->flashdata('SUCC')) {
+    ?>
+        <!-- <script>Swal.fire('<?php echo $this->session->flashdata('flashdata'); ?>','','success')</script> -->
+        <script>
+            $(document).Toasts('create', {
+                class: 'bg-success toast_width',
+                title: 'Success',
+                subtitle: 'close',
+                body: '<?php echo $this->session->flashdata('SUCC'); ?>'
+            })
+        </script>
+    <?php 
+    }
+    ?>
+    <?php
+    if ($this->session->flashdata('ERR')) {
+    ?>
+        <!-- <script>
+        Swal.fire('<?php echo $this->session->flashdata('ERR'); ?>',
+                '',
+                'error'
+            )
+        </script> -->
+        <script>
+            $(document).Toasts('create', {
+                class: 'bg-warning toast_width',
+                title: 'Warning!',
+                subtitle: 'close',
+                body: '<?php echo $this->session->flashdata('ERR'); ?>'
+            })
+        </script>
+    <?php
+    }
+    ?>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+
+    <script>
+        var employeeList = <?php echo json_encode($DISP_EMPLOYEES_NONFILTERED); ?>;
+
+        let data = 
+                [
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                    {
+                        employee: '',
+                        leave_date: '',
+                        duration: '',
+                        remarks: '',
+                    },
+                ];
+        
+        let employeeIdsCopywithCMID =[];
+        const employeeIds = employeeList.map(obj => {
+            let employeeNameWithCMID = '';
+            if(obj.col_empl_cmid)employeeNameWithCMID = `${obj.col_empl_cmid}`;
+            if(obj.col_last_name)employeeNameWithCMID = `${obj.col_empl_cmid}-${obj.col_last_name}`;
+            if (obj.col_suffix)employeeNameWithCMID = `${employeeNameWithCMID} ${obj.col_suffix}`;
+            if (obj.col_frst_name)employeeNameWithCMID = `${employeeNameWithCMID}, ${obj.col_frst_name}`;
+            if (obj.col_midl_name)employeeNameWithCMID = `${employeeNameWithCMID} ${obj.col_midl_name[0]}.`;
+            // let employeeNameWithCMID = `${lastnameSuffix}, ${obj.col_suffix}`;
+            // const employeeNameWithCMID = `${obj.col_empl_cmid}-${obj.col_last_name}, ${obj.col_frst_name} ${obj.col_midl_name.charAt(0).padEnd(2, '.')}`
+            employeeIdsCopywithCMID.push({
+                employeeNameWithCMID: employeeNameWithCMID,
+                cmid:obj.col_empl_cmid
+            })
+            return employeeNameWithCMID;
+        });
+
+        const customStyleRenderer = function(instance, td, row, col, prop, value, cellProperties) {
+            Handsontable.renderers.TextRenderer.apply(this, arguments);
+            td.style.whiteSpace = 'nowrap';
+            td.style.overflow = 'hidden';
+            // if (col === 0 || col === 1 || col === 2) {
+            //         td.style.backgroundColor = 'lightyellow';;
+            //     };
+        };
+
+        const container = document.querySelector('#example');
+        initializeHandsontable(data);
+
+        function initializeHandsontable(data) {
+            const container = document.querySelector('#example');
+            hot = new Handsontable(container, {
+                data,  
+                readOnly: true,
+                nestedHeaders: [
+                ['Employee',
+                'Leave Date','Leave Duration',
+                'Remarks',
+                ],
+                ],
+                rowHeaders: true,
+                height: 'auto',
+                outsideClickDeselects: false,
+                selectionMode: 'multiple',
+                licenseKey: 'non-commercial-and-evaluation',
+                // Custom renderer to prevent text wrapping
+                renderer: customStyleRenderer,
+                // readOnly: false,
+                hiddenColumns: {
+            //   columns: [0],
+                // indicators: true,
+                },
+                stretchH: 'all',
+                columns: [ 
+                {data:'employee',readOnly: false, type: 'dropdown', source: employeeIds, width: 200, wordWrap: false},
+                {data:'leave_date',readOnly: false,type: 'date',
+                dateFormat: 'DD/MM/YYYY', 
+                correctFormat: false}, 
+                {data:'duration',readOnly: false,
+                validator: function(value, callback) {
+                    if (value > 0) {
+                    callback(true);
+                    } else {
+                    callback(false, 'Value must be greater than 0');
+                    }
+                }
+                }, 
+                {data:'remarks',readOnly: false, width: 340}, 
+                ],
+            });
+        }
+
+        const addRowButton = document.getElementById('btn-add-row');
+        addRowButton.addEventListener('click', function() {
+        const lastRowIndex = hot.countRows() - 1;
+        hot.alter('insert_row_below', lastRowIndex);
+        });
+
+        const deleteRowButton = document.getElementById('btn-delete-row');
+        deleteRowButton.addEventListener('click', function() {
+            const selectedRows = hot.getSelected() || [];
+
+            if (selectedRows.length === 0) {
+                alert('No rows selected. Please select rows to delete.');
+                return;
+            }
+
+            if (selectedRows.length > 0) {
+                const confirmed = confirm('Are you sure you want to delete the selected row?');
+                if (confirmed) {
+
+                    const rowsToDelete = new Set();
+
+                    selectedRows.forEach(range => {
+                        const [row1, _column1, row2, _column2] = range;
+                        for (let rowIndex = Math.min(row1, row2); rowIndex <= Math.max(row1, row2); rowIndex++) {
+                            rowsToDelete.add(rowIndex);
+                        }
+                    });
+
+                    const sortedRowsToDelete = Array.from(rowsToDelete).sort((a, b) => b - a);
+
+                    sortedRowsToDelete.forEach(rowIndex => {
+                        hot.alter('remove_row', rowIndex);
+                    });
+
+                    hot.deselectCell();
+
+                }
+            }
+        });
+
+        var insert = document.getElementById('btn-insert');
+        insert.addEventListener('click', function() {
+            if (!data || !Array.isArray(data) || data.length < 0) {
+                $(document).Toasts('create', {
+                    class: 'bg-warning toast_width',
+                    title: 'Warning!',
+                    subtitle: 'close',
+                    body: "Cannot upload with empty row!"
+                });
+                return;
+            }
+            
+            function isValidDateFormat(dateString) {
+              const dateFormatRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+              return dateFormatRegex.test(dateString);
+            }
+
+            let requiredEmptyList = [];
+            let send = false;
+            let changesFinal = [];
+            // for (let i = 0; i < data.length; i++) {
+            // for (let i = data.length - 1; i >= 0; i--) {
+            //     const requiredList = [{
+            //             column: 'employee',
+            //             name: 'Employee'
+            //         },
+            //         {
+            //             column: 'leave_date',
+            //             name: 'Leave Date'
+            //         },
+            //         {
+            //             column: 'duration',
+            //             name: 'Leave Duration'
+            //         },
+            //     ]
+            //     const obj = data[i];
+            //     for (const key in obj) {
+            //         // console.log(`key{${i}}`, obj[key])
+            //         requiredList.forEach((item) => {
+            //             if ((obj[key] == null || obj[key] == '') && key == item.column) {
+            //                 requiredEmptyList.push(item.name)
+            //             }
+            //         });
+
+            //     }
+            //     console.log('requiredEmptyList.length', requiredEmptyList.length);
+            //     if(requiredEmptyList.length < 1){
+            //         data2.push({ ...data[i] });
+            //         data[i].employee = '';
+            //         data[i].leave_date = '';
+            //         data[i].duration = '';
+            //         data[i].remarks = '';
+            //     }else if (requiredEmptyList.length > 0 && requiredEmptyList.length < 3) {
+            //         // let rowWith = 'with';
+            //         // if(data[i].col_empl_cmid){rowWith=`${rowWith} ID:${data[i].col_empl_cmid}`;}
+            //         // if(data[i].col_last_name){rowWith=`${rowWith} Lastname:${data[i].col_last_name}`;}
+            //         // if(data[i].col_frst_name){rowWith=`${rowWith} Firstname:${data[i].col_frst_name}`;}
+            //         // if(data[i].col_birt_date){rowWith=`${rowWith} Firstname:${data[i].col_birt_date}`;}
+            //         $(document).Toasts('create', {
+            //         class: 'bg-danger toast_width',
+            //         title: 'Error!',
+            //         subtitle: 'close',
+            //         body: `Cannot add with empty ${requiredEmptyList} on row ${i+1}`
+            //         });
+            //         // break;
+            //         // console.log('data',data);
+            //         // console.log('required')
+            //     }
+
+            //     requiredEmptyList = [];
+            // }
+            // if (data.length < 10) {
+            //     var rowsToAdd = 10 - data.length;
+            //     for (var i = 0; i < rowsToAdd; i++) {
+            //         data.push({
+            //                     col_empl_cmid: '',
+            //                     col_last_name: '',
+            //                     col_midl_name: '',
+            //                     col_frst_name: '',
+            //                     col_suffix: '',
+            //                     col_mart_stat: '',
+            //                     col_home_addr: '',
+            //                     col_curr_addr: '',
+            //                     col_birt_date: '',
+            //                     col_empl_gend: '',
+            //                     col_empl_nati: '',
+            //                     col_shir_size: '',
+            //                     col_empl_emai: '',
+            //                     col_mobl_numb: '',
+            //                     col_hire_date: '',
+            //                     date_regular: '',
+            //                     resignation_date: '',
+            //                     col_endd_date: '',
+            //                     col_empl_type: '',
+            //                     col_empl_posi: '',
+            //                     col_empl_company: '',
+            //                     col_empl_branch: '',
+            //                     col_empl_dept: '',
+            //                     col_empl_divi: '',
+            //                     col_empl_sect: '',
+            //                     col_empl_group: '',
+            //                     col_empl_team: '',
+            //                     col_empl_line: '',
+            //                     col_imag_path: '',
+            //                     col_empl_sssc: '',
+            //                     col_empl_hdmf: '',
+            //                     col_empl_phil: '',
+            //                     col_empl_btin: '',
+            //                     col_empl_driv: '',
+            //                     col_empl_naid: '',
+            //                     col_empl_pass: '',
+            //                     col_empl_hmoo: '',
+            //                     col_empl_hmon: '',
+            //                     salary_rate: '',
+            //                     salary_type: '',
+            //                     disabled: '',
+            //                 });
+            //     }
+            // }
+            // hot.updateSettings({data});
+            let validRows = [];
+            let invalidRows = [];
+            for (var i = 0; i < data.length; i++) {
+                let employeeInvalid = '';
+                let leaveDateInvalid = '';
+                let leaveDurationInvalid = '';
+                valid = true;
+                var temp = { ...data[i] };
+
+                if (data[i].employee) {
+                    const check = employeeIdsCopywithCMID.find(obj => obj.employeeNameWithCMID === data[i].employee);
+                    if (check) {
+                        temp.employee=check.cmid;
+                    } else {
+                        employeeInvalid = `Employee in Invalid.`;
+                        valid = false;
+                    }
+                }else{
+                    employeeInvalid = `Employee is Empty.`;
+                    valid = false;
+                }
+                if (data[i].leave_date) {
+                    if (isValidDateFormat(data[i].leave_date)) {
+                    const parts = data[i].leave_date.split('/');
+                    const mysqlDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    temp.leave_date=mysqlDate;
+                    }else{
+                        leaveDateInvalid = `Leave Date is Invalid.`;
+                        valid = false;
+                    }
+                } else {
+                    leaveDateInvalid = `Leave Date is Empty.`;
+                    valid = false;
+                }
+                if (data[i].duration) {
+                    if (!(!isNaN(data[i].duration) && Number(data[i].duration) > 0)) {
+                        leaveDurationInvalid = `Leave Date is Invalid.`;
+                        valid = false;
+                    }
+                } else {
+                    leaveDurationInvalid = `Leave Date is Empty.`;
+                    valid = false;
+                }
+                
+                if (valid) {
+                    changesFinal.push(temp);
+                    validRows.push(i+1);
+                }else{
+                    if (!employeeInvalid || !leaveDateInvalid || !leaveDurationInvalid) {
+                        invalidRows.push(i+1);
+                    }
+                }
+                // console.log('employeeInvalid '+i, employeeInvalid);
+                // console.log(`data[${i}].employee`, data[i].employee);
+                // console.log(`data[${i}].employee`, data[i].employee? true: false);
+                // console.log('leaveDateInvalid '+i, leaveDateInvalid);
+                // console.log('leaveDurationInvalid '+i, leaveDurationInvalid);
+            }
+
+            console.log('data', data);
+            console.log('changesFinal', changesFinal);
+            if (changesFinal.length < 1) {
+                $(document).Toasts('create', {
+                    class: 'bg-warning toast_width',
+                    title: 'Warning!',
+                    subtitle: 'close',
+                    body: "No rows with valid Employee, Leave Date and Leave Duration"
+                });
+                return;
+            }
+            const changesLeavesInvalidString = 
+            invalidRows.length > 0? `Row${invalidRows.length > 1? 's': ''} ${invalidRows.join(', ')} ${invalidRows.length > 1? 'have': 'has'} invalid input and will not be added` 
+              : '';
+            const confirmed = confirm(`Are you sure you want to add row: ${validRows.join(', ')} ? ${changesLeavesInvalidString? changesLeavesInvalidString : '' }`);
+            if (!confirmed) {
+                return; 
+            }
+            
+            var url          = '<?= base_url() ?>'; 
+            fetch(url + 'leaves/insert_leaves_direct', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(changesFinal),
+            })
+            .then(response => {
+                if (response.url.includes('session_expired')) {
+                    window.location.reload();
+                    return;
+                }
+                return response.json()
+            })
+            .then(result => {
+                console.log(result);
+                console.log('result', result);
+                if(result.reload){
+                  location.reload();
+                }else if (result.messageSuccess) {
+                    $(document).Toasts('create', {
+                        class: 'bg-success toast_width',
+                        title: 'Success!',
+                        subtitle: 'close',
+                        body: result.messageSuccess
+                    })
+                }
+
+                if (result.messageError) {
+                    $(document).Toasts('create', {
+                        class: 'bg-warning toast_width',
+                        title: 'Warning!',
+                        subtitle: 'close',
+                        body: result.messageError
+                    })
+                }
+
+            })
+            .catch(error => {
+                $(document).Toasts('create', {
+                    class: 'bg-warning toast_width',
+                    title: 'Warning!',
+                    subtitle: 'close',
+                    body: 'Please provide all required information.'
+                })
+                console.log('Data update error:', error);
+            });
+        });
+    </script>
+</body>
+
+</html>
