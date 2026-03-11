@@ -1339,6 +1339,10 @@ $DISP_NAVBAR = $this->header_model->get_navbar();
         doc.text(x, y, text);
       }
 
+      function cellText(cells, index) {
+        return cells[index] ? (cells[index].textContent || '').trim() : '';
+      }
+
 
       $(".btn-export_pdf").on("click", async function() {
         const res = await getData();
@@ -1381,25 +1385,27 @@ $DISP_NAVBAR = $this->header_model->get_navbar();
           writeData(doc, 85, 83.5, '.restDayData')
           writeData(doc, 127, 83.5, '.specialData')
           writeData(doc, 171, 83.5, '.restSpecialData')
+          var absOffset = (<?= isset($DISP_ABSENT) ? (int)$DISP_ABSENT : 0 ?> == 1) ? 0 : 1;
+          doc.setFontSize(6)
           let yAxis = 105;
           Array.from($('.cutoff')).forEach(function(row) {
-            doc.text(19, yAxis, $(row).children()[1].innerText)
-            doc.text(39, yAxis, $(row).children()[2].innerText)
-            doc.text(55, yAxis, $(row).children()[4].innerText)
-            doc.text(64.5, yAxis, $(row).children()[5].innerText)
-            doc.text(78.5, yAxis, $(row).children()[5].innerText)
-            doc.text(86.5, yAxis, $(row).children()[6].innerText)
-            doc.text(94.5, yAxis, $(row).children()[7].innerText)
-            doc.text(102.5, yAxis, $(row).children()[8].innerText)
-            doc.text(110.5, yAxis, $(row).children()[9].innerText)
-            doc.text(118.5, yAxis, $(row).children()[10].innerText)
-            doc.text(126.5, yAxis, $(row).children()[11].innerText)
-            doc.text(134.5, yAxis, $(row).children()[12].innerText)
-            doc.text(142.5, yAxis, $(row).children()[13].innerText)
-            doc.text(150.5, yAxis, $(row).children()[14].innerText)
-            doc.text(158.5, yAxis, $(row).children()[15].innerText)
-            doc.text(166.5, yAxis, $(row).children()[16].innerText)
-            doc.text(174.5, yAxis, $(row).children()[17].innerText)
+            var cells = $(row).children();
+            doc.text(20, yAxis, cellText(cells, 1))                // DATE
+            doc.text(40, yAxis, cellText(cells, 2))               // DAY CODE
+            doc.text(60, yAxis, cellText(cells, 3))               // SHIFT
+            doc.text(79.5, yAxis, cellText(cells, 10))              // IN1
+            doc.text(87, yAxis, cellText(cells, 11))              // OUT1
+            doc.text(97, yAxis, cellText(cells, 12))              // IN2
+            doc.text(107, yAxis, cellText(cells, 13))              // OUT2
+            doc.text(112, yAxis, cellText(cells, 14))             // REG
+            doc.text(126, yAxis, cellText(cells, 23))             // ABS
+            doc.text(135, yAxis, cellText(cells, 24 + absOffset)) // TARD
+            doc.text(144, yAxis, cellText(cells, 25 + absOffset)) // UT
+            doc.text(143, yAxis, cellText(cells, 19))             // PAIDL
+            doc.text(151, yAxis, cellText(cells, 21))             // OT
+            doc.text(161, yAxis, cellText(cells, 22))             // NDOT
+            doc.text(171, yAxis, cellText(cells, 15))             // ND
+            doc.text(174, yAxis, cellText(cells, 28 + absOffset)) // Remarks
             yAxis += 5.41
           })
           window.open(doc.output('bloburl'), '_blank');
