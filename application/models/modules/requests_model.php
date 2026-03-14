@@ -522,6 +522,13 @@ class requests_model extends CI_Model
         return $this->db->insert_id();
     }
 
+    function UPDATE_CHANGESHIFT($empl_id, $date_shift, $result_id)
+    {
+        $date = date('Y-m-d H:i:s');
+        $sql = "UPDATE tbl_attendance_shiftassign SET edit_date=?, shift_id=? WHERE empl_id=? AND date=?";
+        $this->db->query($sql, array($date, $result_id, $empl_id, $date_shift));
+    }
+
     function GET_REQUESTORS($type, $id)
     {
         $this->db->select("CONCAT(tb2.col_last_name,',',tb2.col_frst_name,' ',RPAD(LEFT(tb2.col_midl_name,1),2,'.')) as requestor", false);

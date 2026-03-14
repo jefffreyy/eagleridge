@@ -448,6 +448,9 @@ class teams extends CI_Controller
 
     $res                = $this->teams_model->ADD_CHANGESHIFT_REQUEST($input_data);
 
+    if ($res && $input_data['status'] == 'Approved') {
+      $this->teams_model->UPDATE_CHANGESHIFT($input_data['empl_id'], $input_data['date_shift'], $input_data['request_shift']);
+    }
 
     if ($res && $input_data['status'] != 'Approved') {
       $requestor      = $this->teams_model->GET_REQUESTORS('shiftrequest', $res);
