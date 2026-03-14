@@ -1196,6 +1196,8 @@ class attendances extends CI_Controller
       $logdata['empl_id'] = $attendance->empl_id;
       $logdata['description'] = " Undertime attendance of " . $attendance->fullname . " on '22/01/2024' was exempted.<br>
                                   Reason: " . $input_data['description'];
+      $logdata['ip_address'] = $this->input->ip_address();
+      $logdata['computer_name'] = @gethostbyaddr($this->input->ip_address()) ?: 'Unknown';
       $this->attendance_model->ADD_DATA('tbl_activity_logs', $logdata);
 
       // Redirect with cut-off period
@@ -4253,11 +4255,11 @@ class attendances extends CI_Controller
         if ($reg_ot > 0) {
           $sum_reg_regot += $reg_ot;
         }
-        if ($nd_ot > 0) {
-          $sum_reg_nd += $nd_ot;
-        }
         if ($nd > 0) {
-          $sum_reg_ndot += $nd;
+          $sum_reg_nd += $nd;
+        }
+        if ($nd_ot > 0) {
+          $sum_reg_ndot += $nd_ot;
         }
       } elseif ($hol_code == "REGULAR" && $shift_name == "REST") {
         if ($reg_hrs > 0) {
@@ -6949,11 +6951,11 @@ class attendances extends CI_Controller
           if ($reg_ot > 0) {
             $sum_reg_regot += $reg_ot;
           }
-          if ($nd_ot > 0) {
-            $sum_reg_nd += $nd_ot;
-          }
           if ($nd > 0) {
-            $sum_reg_ndot += $nd;
+            $sum_reg_nd += $nd;
+          }
+          if ($nd_ot > 0) {
+            $sum_reg_ndot += $nd_ot;
           }
         } elseif ($hol_code == "REGULAR" && $shift_name == "REST") {
           if ($reg_hrs > 0) {
