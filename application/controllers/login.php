@@ -11,6 +11,7 @@ class login extends CI_Controller
     $this->load->library('form_validation');
     $this->load->library('session');
     $this->load->driver('cache');
+    $this->load->library('logger');
     $this->no_cache();
   }
 
@@ -116,12 +117,14 @@ class login extends CI_Controller
           }
           if ($user->password_attempt >= 10) {
             $this->system_functions->log_access('Unable to login-Account Locked', 'login action');
+            $this->logger->log_activity($user->id, 'Login failed - Account Locked');
             $this->session->set_userdata('SESS_ERR_MSG_INVALID1', '[E103] Account Locked');
             redirect('login');
           }
 
           if ($disabled > 0) {
             $this->system_functions->log_access('Unable to login-Disabled Account', 'login action');
+            $this->logger->log_activity($user->id, 'Login failed - Account Disabled');
             $this->session->set_userdata('SESS_ERR_MSG_INVALID1', '[E102] Account Disabled');
             redirect('login');
             return;
@@ -135,6 +138,7 @@ class login extends CI_Controller
             $user_id = $user->id;
           } else {
             $this->system_functions->log_access('Unable to login-Wrong password', 'login action');
+            $this->logger->log_activity($user->id, 'Login failed - Wrong password');
             $this->session->set_userdata('SESS_ERR_MSG_INVALID1', '[E101] Incorrect Password');
             redirect('login');
           }
@@ -147,6 +151,7 @@ class login extends CI_Controller
             if ($ip_add <= 0) {
               $this->session->set_userdata('SESS_ERR_MSG_INVALID1', '[E104] IP Address Blocked..');
               $this->system_functions->log_access('Unable to login-IP Block', 'login action');
+              $this->logger->log_activity($user->id, 'Login failed - IP Address Blocked');
               redirect('login');
               return;
             }
@@ -170,6 +175,7 @@ class login extends CI_Controller
             $this->login_model->RECORD_SUCCESSFUL_LOGIN($user->id);
             $this->session->set_userdata('SESS_ADMIN', '0');
             $this->system_functions->log_access('Successfully login', 'login action');
+            $this->logger->log_activity($user_id, 'User logged in');
             redirect('home');
           }
         } else {
@@ -198,6 +204,7 @@ class login extends CI_Controller
         $this->session->set_userdata('SESS_SUCC_MSG_LOGIN', 'Login Successfully!');
         $this->system_functions->log_access('Successfully change password', 'change password');
         $this->system_functions->log_access('Successfully login', 'login action');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Changed password');
         redirect('home');
       }
     } else {
@@ -225,6 +232,7 @@ class login extends CI_Controller
         //   $this->session->set_userdata('SESS_SUCC_MSG_LOGIN','Login Successfully!');
         $this->system_functions->log_access('Successfully change password', 'change password');
         $this->system_functions->log_access('Successfully login', 'login action');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Changed password via reset link');
         redirect('home');
       }
     } else {
@@ -290,6 +298,7 @@ class login extends CI_Controller
   function sign_out()
   {
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'User logged out');
     $this->system_functions->log_access('User Logout', 'logout action');
     // $this->session->sess_destroy(); // Destroy the session first
 

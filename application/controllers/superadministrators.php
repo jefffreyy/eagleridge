@@ -9,6 +9,7 @@ class superadministrators extends CI_Controller
         $this->load->model('templates/main_nav_model');
         $this->load->library('session');
         $this->load->helper('form');
+        $this->load->library('logger');
 
         // auto login starts
         $this->load->model('admin_model');
@@ -284,6 +285,7 @@ class superadministrators extends CI_Controller
       $table = 'tbl_requests_list';
       $res = $this->superadministrators_model->update_data_table($table ,$input_data,$id);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated request list');
         $this->session->set_flashdata('SUCC', 'Successfully Submitted');
       } else {
         $this->session->set_flashdata('ERR', 'Submission Failed');
@@ -309,6 +311,7 @@ class superadministrators extends CI_Controller
       $table = 'tbl_requests_list';
       $res = $this->superadministrators_model->insert_data_table($table ,$input_data);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added request list');
         $this->session->set_flashdata('SUCC', 'Successfully Submitted');
       } else {
         $this->session->set_flashdata('ERR', 'Submission Failed');
@@ -353,7 +356,7 @@ class superadministrators extends CI_Controller
         $this->superadministrators_model->UPDATE_MAIYA_NAVBAR_LOGO();
         $this->superadministrators_model->UPDATE_MAIYA__MOBILE_HEADER_LOGO();
 
-
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Reset Maiya system');
         redirect("superadministrators/setups");
     }
     function update_reset_eyebox()
@@ -364,6 +367,7 @@ class superadministrators extends CI_Controller
         $this->superadministrators_model->UPDATE_EYEBOX_LOGO();
         $this->superadministrators_model->UPDATE_EYEBOX_NAVBAR_LOGO();
         $this->superadministrators_model->UPDATE_EYEBOX__MOBILE_HEADER_LOGO();
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Reset EyeBox system');
         redirect("superadministrators/setups");
     }
 
@@ -440,6 +444,7 @@ class superadministrators extends CI_Controller
         ($end_trial_data != '') ?  $end_trial_data:  $end_trial_data = '';
 
         $this->superadministrators_model->UPDATE_END_TRIAL($end_trial_data, 'end_trial');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Ended trial period');
         $this->session->set_flashdata('SUCC', 'Settings successfully updated');
         redirect($this->input->server('HTTP_REFERER'));
     }
@@ -448,6 +453,7 @@ class superadministrators extends CI_Controller
         $eagle_ridge_setting_val = $this->input->post('eagleridge_attendace_record');
 
         $this->superadministrators_model->UPDATE_SYSTEM_SETUP_VALUE('eagleridge_attendace_record', $eagle_ridge_setting_val);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated attendance record setting');
         $this->session->set_flashdata('SUCC', 'Settings Successfully updated');
         redirect($this->input->server('HTTP_REFERER'));
     }
@@ -476,6 +482,7 @@ class superadministrators extends CI_Controller
         $res = $this->superadministrators_model->UPDATE_HOME_SETTINGS($input_data);
         // var_dump($res);die();
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated system configurations');
             $this->session->set_flashdata('SUCC', 'Settings Successfully updated');
         } else {
             $this->session->set_flashdata('ERR', 'Settings Unable to update');
@@ -507,6 +514,7 @@ class superadministrators extends CI_Controller
         //     redirect('superadministrators/system_variables');
         //     return;
         // }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated system variables');
         $this->session->set_flashdata('success', 'Successfully Updated!');
         redirect('superadministrators/system_variables');
     }
@@ -581,6 +589,7 @@ class superadministrators extends CI_Controller
                 $result = $this->superadministrators_model->TRUNCATE_DATABASE_TABLE($table);
             }
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Reset system data');
         echo json_encode(array('messageSuccess' =>  'Resetting Data Successful'));
     }
 
@@ -605,6 +614,7 @@ class superadministrators extends CI_Controller
     {
         $companyName                                = $this->input->post('UPDATE_NAME');
         $this->superadministrators_model->MOD_UPDATE_NAME($companyName);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated company name');
         $this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPLY', '  Submitted Successfully!');
         redirect('superadministrators/setups');
     }
@@ -612,6 +622,7 @@ class superadministrators extends CI_Controller
     {
         $h_content                                  = $this->input->post('header');
         $this->superadministrators_model->UPDATE_HEADER_CONTENT($h_content);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated header content');
         $this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPLY', '  Submitted Successfully!');
         redirect('superadministrators/setups');
     }
@@ -619,6 +630,7 @@ class superadministrators extends CI_Controller
     {
         $f_content                                  = $this->input->post('footer');
         $this->superadministrators_model->UPDATE_FOOTER_CONTENT($f_content);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated footer content');
         $this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPLY', ' Submitted Successfully!');
         redirect('superadministrators/setups');
     }
@@ -636,6 +648,7 @@ class superadministrators extends CI_Controller
                 $logo_img                               = $data_upload['INSRT_LOGIN_LOGO']['file_name'];
                 // echo '<pre>'; var_dump($logo_img); die();
                 $this->superadministrators_model->INSERT_LOGO($logo_img);
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated logo');
                 $this->session->set_flashdata('SESS_SUCC', 'New Login Logo Image was Added!');
             } else {
                 $error                                  = array('error' => $this->upload->display_errors());
@@ -659,6 +672,7 @@ class superadministrators extends CI_Controller
                 $data_upload                            = array('INSRT_NAVBAR_LOGO' => $this->upload->data());
                 $logo_img                               = $data_upload['INSRT_NAVBAR_LOGO']['file_name'];
                 $this->superadministrators_model->INSERT_NAVBAR($logo_img);
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated navbar');
                 $this->session->set_flashdata('SESS_SUCC', 'New Navigation Bar Logo was Added!');
             } else {
                 $error                                  = array('error' => $this->upload->display_errors());
@@ -782,6 +796,7 @@ class superadministrators extends CI_Controller
         $this->superadministrators_model->TRUNCATE_ALL_TABLE2();
         $this->superadministrators_model->INSERT_DEFAULT_DATA($db_name_3, $data_3);
         $this->superadministrators_model->INSERT_CUT_OFF();
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Truncated database tables');
 
         // redirect('login');
 
@@ -800,6 +815,7 @@ class superadministrators extends CI_Controller
             return;
         }
         $res = $this->superadministrators_model->DB_RESET($db_name);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Truncated database tables');
         if ($db_name == 'tbl_std_leavetypes' && $res) {
             $data = array(
                 array(
@@ -843,6 +859,7 @@ class superadministrators extends CI_Controller
                 $data_upload                        = array('INSRT_HEADER_LOGO' => $this->upload->data());
                 $logo_img                           = $data_upload['INSRT_HEADER_LOGO']['file_name'];
                 $this->superadministrators_model->INSERT_HEADER($logo_img);
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated header');
                 $this->session->set_flashdata('SESS_SUCC', 'New Header Logo(Mobile) Image was Added!');
                 redirect('superadministrators/setups');
             } else {
@@ -871,6 +888,7 @@ class superadministrators extends CI_Controller
                 $data_upload                        = array('INSRT_MOBILE_BANNER' => $this->upload->data());
                 $logo_img                           = $data_upload['INSRT_MOBILE_BANNER']['file_name'];
                 $this->superadministrators_model->UPDATE_MOBILE_BANNER($logo_img);
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated mobile banner');
                 $this->session->set_flashdata('SESS_SUCC', 'New Banner Logo(Mobile) Image was Added!');
             } else {
                 $error                              = array('error' => $this->upload->display_errors());
@@ -897,6 +915,7 @@ class superadministrators extends CI_Controller
                 $data_upload                        = array('INSRT_DESKTOP_BANNER' => $this->upload->data());
                 $logo_img                           = $data_upload['INSRT_DESKTOP_BANNER']['file_name'];
                 $this->superadministrators_model->UPDATE_DESKTOP_BANNER($logo_img);
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated desktop banner');
                 $this->session->set_flashdata('SESS_SUCC', 'New Banner Logo(Desktop) Image  was Added!');
                 redirect('superadministrators/setups');
             } else {
@@ -923,6 +942,7 @@ class superadministrators extends CI_Controller
             $value                                  = isset($data['values']) ? implode(" ,", $data['values']) : 0;
             $this->superadministrators_model->MOD_UPDATE_STATUS($value, $status_id);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated status');
         $this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPLY', '  Updated Successfully!');
         redirect('superadministrators/module_activations');
     }
@@ -933,6 +953,7 @@ class superadministrators extends CI_Controller
         $value          = $this->input->post('main_on');
         $checked = ($value == '') ? 0 : 1;
         $this->superadministrators_model->MOD_UPDATE_STATUS($checked, $id);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated maintenance mode');
         redirect("superadministrators/configurations");
     }
 
@@ -941,6 +962,7 @@ class superadministrators extends CI_Controller
     {
         $checked = ($value == '') ? 0 : $value;
         $this->superadministrators_model->MOD_UPDATE_STATUS($checked, $status_id);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated process');
     }
     function get_modules()
     {
@@ -977,6 +999,7 @@ class superadministrators extends CI_Controller
         $response = $this->superadministrators_model->MOD_INSRT_ANNOUNCEMENTS($attachment);
         if ($response) {
             $upload_response = $this->do_upload();
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added attachment');
             $this->session->set_userdata('SESS_SUCC_MSG_INSRT_ANNOUNCEMENTS', 'Knowledge Bases Added Successfully!');
         }
         redirect('superadministrators/configurations');

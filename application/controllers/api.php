@@ -9,6 +9,7 @@ class api extends CI_Controller
     $this->load->helper(array('form', 'url'));
     $this->load->library('form_validation');
     $this->load->library('session');
+    $this->load->library('logger');
   }
 
   function index()
@@ -34,6 +35,7 @@ class api extends CI_Controller
         $data["hrms"]       = "Eyebox HRMS";
         $data["url"]        = "https://dev-env2.eyebox.app/";
         $this->api_model->UPDATE_SENT_MESSAGES();
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated sent messages via API');
         echo json_encode($data);
     } else {
         // If the request method is not GET, return a 405 Method Not Allowed response

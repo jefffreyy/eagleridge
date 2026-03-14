@@ -13,6 +13,7 @@ class uploaders extends CI_Controller{
         $this->load->model('modules/uploaders_model');
 
         $this->load->library('pagination');
+        $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -67,6 +68,7 @@ class uploaders extends CI_Controller{
             $data['empl_id']            = $user_id;             
 
             $res=$this->uploaders_model->ADD_DATA_FILE($data);
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Uploaded file');
 
             echo json_encode($response);
 
@@ -87,6 +89,7 @@ class uploaders extends CI_Controller{
                 // Attempt to delete the file
                 if (unlink($file)) {
                     $res=$this->uploaders_model->DELET_DATA_FILE($file,$user_id);
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted file');
                     echo 1;
                 } else {
                     echo 'Not deleted';

@@ -7,6 +7,7 @@ class main_table_02 extends CI_Controller
   {
     parent::__construct();
     $this->load->model('templates/main_table_02_model');
+    $this->load->library('logger');
     // auto login starts
     $this->load->model('admin_model');
     $auto_login = $this->admin_model->get_system_setup_by_setting2('auto_login', '0');
@@ -62,6 +63,7 @@ class main_table_02 extends CI_Controller
   {
     $data                     = $this->input->post('edit_encrypted_data');
     $id_data                  = $this->input->post('edit_id_data');
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited test data');
 
     var_dump($data);
     echo "====<br>";
@@ -103,6 +105,7 @@ class main_table_02 extends CI_Controller
     $set_array['edit_date']   = date('Y-m-d H:i:s');
 
     $res                      = $this->$model->EDIT_TABLE_ROW($table, $id, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited table row');
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully Updated');
       redirect($module_name . "/" . $page_name);
@@ -141,6 +144,7 @@ class main_table_02 extends CI_Controller
     $set_array['edit_date']   = date('Y-m-d H:i:s');
 
     $res                      = $this->$model->ADD_TABLE_ROW($table, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added table row');
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully Updated');
     } else {
@@ -177,6 +181,7 @@ class main_table_02 extends CI_Controller
 
     $edit_date                   = date('Y-m-d H:i:s');
     $this->$model->DELETE_TABLE_ROW($id, $table, $edit_user, $edit_date);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted table row');
     $this->session->set_userdata('delete', 'Deleted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -206,6 +211,7 @@ class main_table_02 extends CI_Controller
       $tab = "All";
     }
     $res = $this->$model->EDIT_BULK_STATUS($table, $status, $ids_int, $edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated table bulk status');
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully Updated');
       redirect($module_name . '/' . $page_name . '?page=' . $page . $row_url . $row . '&tab=' . $tab);
@@ -271,10 +277,11 @@ class main_table_02 extends CI_Controller
             }
           }
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Imported data from CSV');
         $this->session->set_userdata('success', 'Submitted Successfully!');
         redirect($module_name . '/' . $page_name);
       }
-    } else            
+    } else
     {
       $error                      =  $this->upload->display_errors();
       $this->session->set_userdata('SESS_ERR_MSG_INSRT_CSV', $error);

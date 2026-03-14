@@ -6,6 +6,7 @@
     {
       parent::__construct();
       $this->load->model('modules/handsontable_model');
+      $this->load->library('logger');
     }
 
     function handsontable(){
@@ -26,6 +27,7 @@
             $this->handsontable_model->UPDATE_DATA($data_row);
           }
           $response = array('success_message' => 'Data updated successfully');
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated handsontable data');
         } catch (Exception $e) {
           $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
         }
@@ -42,7 +44,8 @@
         }
 
         $response = array('success_message' => 'Data deleted successfully');
-        
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted handsontable data');
+
       } catch (Exception $e) {
         $response = array('warning_message' => 'Data deletion error: ' . $e->getMessage());
       }

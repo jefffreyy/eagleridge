@@ -11,6 +11,7 @@ class attendances extends CI_Controller
     $this->load->model('modules/attendance_model');
     $this->load->model('modules/selfservices_model');
     $this->load->model('modules/payrolls_model');
+    $this->load->library('logger');
     // auto login starts
     $this->load->model('admin_model');
     $auto_login = $this->admin_model->get_system_setup_by_setting2('auto_login', '0');
@@ -683,6 +684,7 @@ class attendances extends CI_Controller
 
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Added Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added payroll schedule');
     }
 
     redirect('attendances/payroll_schedules');
@@ -809,6 +811,7 @@ class attendances extends CI_Controller
       $res = $this->attendance_model->ADD_DATA('tbl_fence_areas', $input_data);
       if ($res) {
         $this->session->set_flashdata('SUCC', 'Successfully added new fence area');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added geofence');
       }
     }
     redirect('attendances/setting_geo_fences');
@@ -836,6 +839,7 @@ class attendances extends CI_Controller
       $res = $this->attendance_model->UPDATE_ROW_DATA('tbl_fence_areas', $input_data, 'id', $input_data['id']);
       if ($res) {
         $this->session->set_flashdata('SUCC', 'Successfully updated fence area');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated geofence');
       }
     }
     redirect('attendances/setting_geo_fences');
@@ -908,6 +912,7 @@ class attendances extends CI_Controller
         'unexpted' => $unexpted,
         'res' => $res,
       );
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated holiday settings');
       // $this->session->set_flashdata('SUCC','Data updated successfully');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage(), 'filteredData', $filteredData);
@@ -972,6 +977,7 @@ class attendances extends CI_Controller
         'unexpted' => $unexpted,
         'res' => $res,
       );
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated year settings');
       // $this->session->set_flashdata('SUCC','Data updated successfully');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage(), 'filteredData', $filteredData);
@@ -1005,6 +1011,7 @@ class attendances extends CI_Controller
     // var_dump($res);die();
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Settings Successfully updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated remote attendance settings');
     } else {
       $this->session->set_flashdata('ERR', 'Settings Unable to update');
     }
@@ -1067,6 +1074,7 @@ class attendances extends CI_Controller
         'unexpted' => $unexpted,
         'res' => $res,
       );
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated biometric settings');
       // $this->session->set_flashdata('SUCC','Data updated successfully');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage(), 'filteredData', $filteredData);
@@ -1444,6 +1452,7 @@ class attendances extends CI_Controller
     } else {
       $this->attendance_model->UPDATE_ATTENDANCE_LOCK($data);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Locked attendance records');
     if (isset($_SERVER["HTTP_REFERER"])) {
       redirect($_SERVER["HTTP_REFERER"]);
     }
@@ -7187,6 +7196,7 @@ class attendances extends CI_Controller
         }
       }
       $response = array('success_message' => 'Employee successfully endorsed!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted attendance data');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
     }
@@ -7317,6 +7327,7 @@ class attendances extends CI_Controller
         $this->attendance_model->UPDATE_ATTENDANCE_RECORD_ADVANCE($data_row, $empl_id);
       }
       $response = array('success_message' => 'Data updated successfully');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated advance attendance record');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
     }
@@ -7330,6 +7341,7 @@ class attendances extends CI_Controller
         $this->attendance_model->ADD_ATTENDANCE_RECORD($data_row);
       }
       $response = array('success_message' => 'Data updated successfully');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added attendance record');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
     }
@@ -7362,6 +7374,7 @@ class attendances extends CI_Controller
       $response = array('success_message' => 'Data on ' . $updateCounter . ' dates updated successfully');
       if ($updateCounter) {
         $response = array('success_message' => 'Data on ' . $updateCounter . ' dates updated successfully');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited advance attendance record');
       } else {
         $response = array('warning_message' => 'No data updated on any dates. ');
       }
@@ -7384,6 +7397,7 @@ class attendances extends CI_Controller
       $response = array('success_message' => 'Data on ' . $updateCounter . ' dates updated successfully');
       if ($updateCounter) {
         $response = array('success_message' => 'Data on ' . $updateCounter . ' dates updated successfully');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited attendance record');
       } else {
         $response = array('warning_message' => 'No data updated on any dates. ');
       }
@@ -7979,6 +7993,7 @@ class attendances extends CI_Controller
         }
       }
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated shift');
     if (isset($_SERVER["HTTP_REFERER"])) {
       redirect($_SERVER["HTTP_REFERER"]);
     }
@@ -8560,6 +8575,7 @@ class attendances extends CI_Controller
     // redirect('attendances/work_shifts');
     if ($response) {
       $this->session->set_flashdata('SESS_SUCC_MSG_UPDT_WRK_SHFT', 'New work shift added successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added work shift');
     } else {
       $this->session->set_flashdata('SESS_ERROR_MSG_UPDT_WRK_SHFT', 'Failed adding new work shift');
     }
@@ -8591,6 +8607,7 @@ class attendances extends CI_Controller
     $response = $this->attendance_model->UPDATE_SPE_WORKSHIFT($input_data['id'], $input_data);
     if ($response) {
       $this->session->set_flashdata('SESS_SUCC_MSG_UPDT_WRK_SHFT', 'Work shift updated successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated work shift');
     } else {
       $this->session->set_flashdata('SESS_ERROR_MSG_UPDT_WRK_SHFT', 'Fail!');
     }
@@ -8600,6 +8617,7 @@ class attendances extends CI_Controller
   {
     $work_shift_id = $this->input->get('delete_id');
     $this->attendance_model->MOD_DLT_WRK_SHFT($work_shift_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted work shift');
     $this->session->set_flashdata('SESS_SUCC_MSG_DLT_WRK_SHFT', 'Deleted Successfully!');
     redirect('attendances/work_shifts');
   }
@@ -8622,6 +8640,7 @@ class attendances extends CI_Controller
     $saturday = $this->input->post('SHIFTTEMPLATE_INPF_SATURDAY');
     $sunday = $this->input->post('SHIFTTEMPLATE_INPF_SUNDAY');
     $this->attendance_model->MOD_INSRT_SHIFTTEMPLATE($code, $name, $monday, $tuesday, $wednesday, $thursday, $friday, $saturday, $sunday);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added shift template');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_SHIFTTEMPLATE', 'Added Successfully!');
     redirect('attendances/shift_templates');
   }
@@ -8638,6 +8657,7 @@ class attendances extends CI_Controller
     $saturday = $this->input->post('UPDT_SHIFTTEMPLATE_INPF_SATURDAY');
     $sunday = $this->input->post('UPDT_SHIFTTEMPLATE_INPF_SUNDAY');
     $this->attendance_model->MOD_UPDT_SHIFTTEMPLATE($code, $name, $monday, $tuesday, $wednesday, $thursday, $friday, $saturday, $sunday, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated shift template');
     $this->session->set_userdata('SESS_SUCC_MSG_UPDT_SHIFTTEMPLATE', 'Updated Successfully!');
     redirect('attendances/shift_templates');
   }
@@ -8645,6 +8665,7 @@ class attendances extends CI_Controller
   {
     $ShiftTemplate_id = $this->input->get('delete_id');
     $this->attendance_model->MOD_DLT_SHIFTTEMPLATE($ShiftTemplate_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted shift template');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_SHIFTTEMPLATE', 'Deleted Successfully!');
     redirect('attendances/shift_templates');
   }
@@ -8708,6 +8729,7 @@ class attendances extends CI_Controller
     $HOLIDAY_INPF_DATE = $this->input->post('HOLIDAY_INPF_DATE');
     $HOLIDAY_INPF_TYPE = $this->input->post('HOLIDAY_INPF_TYPE');
     $this->attendance_model->MOD_INSRT_HOLIDAY($HOLIDAY_INPF_NAME, $HOLIDAY_INPF_DATE, $HOLIDAY_INPF_TYPE);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added holiday');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_HOLIDAY', 'Added Successfully!');
     redirect('attendances/holidays');
   }
@@ -8718,6 +8740,7 @@ class attendances extends CI_Controller
     $UPDT_HOLIDAY_INPF_DATE = $this->input->post('UPDT_HOLIDAY_INPF_DATE');
     $UPDT_HOLIDAY_INPF_TYPE = $this->input->post('UPDT_HOLIDAY_INPF_TYPE');
     $this->attendance_model->MOD_UPDT_HOLIDAY($UPDT_HOLIDAY_INPF_NAME, $UPDT_HOLIDAY_INPF_DATE, $UPDT_HOLIDAY_INPF_TYPE, $UPDT_HOLIDAY_INPF_ID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated holiday');
     $this->session->set_userdata('SESS_SUCC_MSG_UPDT_HOLIDAY', 'Updated Successfully!');
     redirect('attendances/holidays');
   }
@@ -8725,6 +8748,7 @@ class attendances extends CI_Controller
   {
     $holiday_id = $this->input->get('delete_id');
     $this->attendance_model->MOD_DLT_HOLIDAY($holiday_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted holiday');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_HOLIDAY', 'Deleted Successfully!');
     redirect('attendances/holidays');
   }
@@ -8780,6 +8804,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->ADD_DATA('tbl_overtimes', $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added overtime');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('attendances/add_overtime');
@@ -8806,6 +8831,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->UPDATE_OVERTIME($id, $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully Updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated overtime');
     }
     redirect('attendances/overtimes');
   }
@@ -8861,6 +8887,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->ADD_DATA('tbl_holidaywork', $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added holiday work');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('attendances/add_holiday_work');
@@ -8881,6 +8908,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->UPDATE_HOLIDAY_WORK($id, $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated holiday work');
     }
     redirect('attendances/holiday_work');
   }
@@ -8946,6 +8974,7 @@ class attendances extends CI_Controller
       $requested_by = $assigned_by;
       $this->attendance_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $ot_id, $requested_by);
       $this->attendance_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $ot_id, $notif_status);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned overtime');
       $this->session->set_userdata('SESS_SUCC_MSG_INSRT_OVERTIME', 'Over-Time application submitted!');
     } else {
       $this->session->set_userdata('SESS_ERR_MSG_INSRT_OVERTIME', 'Submission Failed!');
@@ -8968,6 +8997,7 @@ class attendances extends CI_Controller
     } else if ($appl_type == 'Rest OT') {
       $this->attendance_model->MOD_UPDT_ATT_REST_OT($actual_ot_duration, $appl_overtime_date, $empl_id);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated overtime application');
     $this->session->set_userdata('success', 'Overtime Application Updated');
     redirect('attendances/overtime');
   }
@@ -9041,6 +9071,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->UPDATE_OFFSET($input_data, $id);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated offset');
     } else {
       $this->session->set_flashdata('ERR', 'Unable to update');
     }
@@ -9091,6 +9122,7 @@ class attendances extends CI_Controller
       $res = $this->attendance_model->ADD_OFFSET_REQUEST($input_data);
       if ($res) {
         $this->session->set_flashdata('SUCC', 'Successfully added');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added offset');
         if ($isApproversEnable == 0) {
           redirect('attendances/offset_lists');
           return;
@@ -9241,6 +9273,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->ADD_DATA('tbl_attendance_adjustments', $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added time adjustment');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('attendances/add_time_adjustment');
@@ -9261,6 +9294,7 @@ class attendances extends CI_Controller
     $res = $this->attendance_model->UPDATE_TIME_ADJ($id, $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated time adjustment');
     }
     redirect('attendances/time_adjustment_lists');
   }
@@ -9606,6 +9640,7 @@ class attendances extends CI_Controller
         $this->output->set_content_type('application/json')->set_output(json_encode($response));
         return;
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated ZKTeco code');
       $this->output->set_content_type('application/json')->set_output(json_encode($response));
     } catch (Exception $e) {
       $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
@@ -9740,6 +9775,7 @@ class attendances extends CI_Controller
     $result = $this->attendance_model->save_sorted_data($data);
 
     if ($result) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Saved attendance data');
       echo json_encode(['status' => 'success', 'message' => 'Data saved successfully!']);
     } else {
       echo json_encode(['status' => 'error', 'message' => 'Failed to save data.']);
@@ -9769,6 +9805,7 @@ class attendances extends CI_Controller
     } else {
       $this->attendance_model->INSERT_EMPL_CODE($id, $empl_id, $code);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Processed code update');
     $this->session->set_userdata('SESS_SUCCESS_MSG', "Employee code is updated successfully!");
     if (isset($_SERVER["HTTP_REFERER"])) {
       redirect($_SERVER["HTTP_REFERER"]);
@@ -9799,6 +9836,7 @@ class attendances extends CI_Controller
     $app3a = $this->input->post('insrt_approver_3a');
     $app3b = $this->input->post('insrt_approver_3b');
     $this->attendance_model->MOD_INSERT_APPROVER_DATA($emp_id, $app1a, $app1b, $app2a, $app2b, $app3a, $app3b);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added attendance approval');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPROVER', "Approval Route Added Successfully!");
     if (isset($_SERVER["HTTP_REFERER"])) {
       redirect($_SERVER["HTTP_REFERER"]);
@@ -9829,6 +9867,7 @@ class attendances extends CI_Controller
         $this->attendance_model->MOD_INSERT_OVERTIME_APPROVER($date, $approver1a, $approver1b, $approver2a, $approver2b, $approver3a, $approver3b, $id);
       }
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned approvers');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPROVER', "Approval Route Updated Successfully!");
     if (isset($_SERVER["HTTP_REFERER"])) {
       redirect($_SERVER["HTTP_REFERER"]);
@@ -9888,6 +9927,7 @@ class attendances extends CI_Controller
     }
     $set_array['edit_user'] = $edit_user;
     $this->main_table_01_model->edit_table_row($table, $id, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited attendance row');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -9909,6 +9949,7 @@ class attendances extends CI_Controller
     }
     $set_array['edit_user'] = $edit_user;
     $this->main_table_01_model->add_table_row($table, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added attendance row');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -9920,6 +9961,7 @@ class attendances extends CI_Controller
     $module_name = $this->input->get('module');
     $page_name = $this->input->get('page');
     $this->main_table_01_model->delete_table_row($id, $table, $edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted attendance row');
     $this->session->set_userdata('delete', 'Deleted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -9947,6 +9989,7 @@ class attendances extends CI_Controller
       $tab = "all";
     }
     $this->main_table_01_model->edit_bulk_status($table, $status, $ids_int, $edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated bulk attendance status');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . '/' . $page_name . '?page=' . $page . $row_url . $row . '&tab=' . $tab);
   }

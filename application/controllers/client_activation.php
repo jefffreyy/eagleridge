@@ -6,6 +6,7 @@ class client_activation extends CI_Controller
   {
     parent::__construct();
     $this->load->model('modules/client_activation_model');
+    $this->load->library('logger');
   }
 
   function index()
@@ -67,6 +68,7 @@ class client_activation extends CI_Controller
       }
 
       $this->client_activation_model->INSERT_NEW_ACCOUNT($empl_no, $username, $password, $lastname, $midlname, $firstname);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added client account');
       redirect("client_activation/setup_1");
     } else {
       $this->session->set_userdata("SESS_ERROR_MSG", "The password and confirm password do not match.");
@@ -82,6 +84,7 @@ class client_activation extends CI_Controller
     );
 
     $this->client_activation_model->UPDATE_COMPANY_NAME($data);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated company name');
     $this->load->library('upload');
 
     $logo_inputs                                        = array(
@@ -133,6 +136,7 @@ class client_activation extends CI_Controller
     );
 
     $this->client_activation_model->UPDATE_ORG($data);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated organization');
     redirect("client_activation/setup_3");
   }
 
@@ -148,6 +152,7 @@ class client_activation extends CI_Controller
     );
 
     $this->client_activation_model->UPDATE_CONTRIBUTIONS_SETTING($data);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated contribution setting');
     redirect("client_activation/setup_4");
   }
 
@@ -160,6 +165,7 @@ class client_activation extends CI_Controller
     $year                                               = $this->input->post('year');
 
     $this->client_activation_model->INSERT_DATE_COVERAGE($name, $data_from, $date_to, $pay_period, $year);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated date coverage');
     redirect("client_activation/setup_5");
   }
 
@@ -175,6 +181,7 @@ class client_activation extends CI_Controller
     );
 
     $result                                             = $this->client_activation_model->UPDATE_SITE_RESTICTION_SETTING($data);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated site restriction');
 
     if ($ip_address) {
       $ip_add                                           = $this->client_activation_model->INSERT_IP_ADDRESS($create_date, $ip_address);

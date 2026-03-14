@@ -6,6 +6,7 @@ class exitmanagements extends CI_Controller
     parent::__construct();
     $this->load->model('templates/main_nav_model');
     $this->load->model('templates/main_table_01_model');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -289,6 +290,7 @@ class exitmanagements extends CI_Controller
     }
     $set_array['edit_user'] = $edit_user;
     $this->main_table_01_model->edit_table_row($table,$id,$set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited exit management record');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -312,6 +314,7 @@ class exitmanagements extends CI_Controller
     }
     $set_array['edit_user'] = $edit_user;
     $this->main_table_01_model->add_table_row($table, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added exit management record');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -322,6 +325,7 @@ class exitmanagements extends CI_Controller
     $module_name  = $this->input->get('module');
     $page_name    = $this->input->get('page');
     $this->main_table_01_model->delete_table_row($id,$table,$edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted exit management record');
     $this->session->set_userdata('delete', 'Deleted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -342,6 +346,7 @@ class exitmanagements extends CI_Controller
     if($tab == null){ $tab = "All"; }
     // var_dump($status . $ids );
     $this->main_table_01_model->edit_bulk_status($table,$status,$ids_int,$edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated exit management bulk status');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     //  var_dump($ids_int);
     redirect($module_name.'/'.$page_name.'?page='.$page.$row_url.$row.'&tab='.$tab);

@@ -8,6 +8,7 @@ class sms_user extends CI_Controller
     $this->load->model('templates/main_nav_model');
     $this->load->model('modules/payrolls_model');
     $this->load->model('modules/message_model');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -88,6 +89,7 @@ class sms_user extends CI_Controller
         $data[]=array('id'=>$id,'status'=>'Active');
     }
    $res=$this->message_model->UPDATE_BULK_ACTIVATE($data,$table);
+   $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk activated SMS messages');
    $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully Activate!');
    redirect('messages/sms_messages');
 }
@@ -98,6 +100,7 @@ $loan_ids                   = explode(',',$this->input->post('inactive'));
         $data[]=array('id'=>$id,'status'=>'Inactive');
     }
    $res=$this->message_model->UPDATE_BULK_ACTIVATE($data,$table);
+   $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk deactivated SMS messages');
    $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully Deactivate!');
    redirect('messages/sms_messages');
    
@@ -133,7 +136,8 @@ function insert_new_sms_message(){
                   
 
        $res_new                         = $this->message_model->Add_NEW_MESSAGE($inputs);
-     
+       $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Sent SMS message');
+
        if($res_new){
            $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully added!');
        }else{

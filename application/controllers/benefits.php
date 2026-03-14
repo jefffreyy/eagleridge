@@ -9,6 +9,7 @@
       $this->load->model('templates/main_table_01_model');
       $this->load->model('templates/main_table_02_model');
       $this->load->model('modules/benefits_model');
+      $this->load->library('logger');
       // auto login starts
       $this->load->model('admin_model');
       $auto_login = $this->admin_model->get_system_setup_by_setting2('auto_login', '0');
@@ -108,6 +109,7 @@
       $res = $this->benefits_model->update_system_setup($input_data);
       // var_dump($res);die();
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated benefits general settings');
         $this->session->set_flashdata('SUCC', 'Benefits Settings Successfully updated');
       } else {
         $this->session->set_flashdata('ERR', 'Benefits Settings Unable to update');
@@ -132,6 +134,7 @@
       }
 
       if ($res){
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated allowance settings');
         $this->session->set_userdata('SESS_SUCCESS', 'Successfully Updated!');
       }else{
         $this->session->set_userdata('SESS_FAILED', 'Successfully Updated!');
@@ -188,6 +191,7 @@
             $unexpted++;
           }
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated loan types');
         $response           = array(
           'success_message' => 'Data updated successfully',
           'failedInsert' => $failedInsert,
@@ -255,7 +259,7 @@
         $updated = 0;
         $unexpted = 0;
         foreach ($filteredData as $data) {
-          $res = $this->benefits_model->update_setting_tables($table, $data, $edit_user); 
+          $res = $this->benefits_model->update_setting_tables($table, $data, $edit_user);
           if ($res == 'failedInsert') {
             $failedInsert++;
           } else if ($res == 'inserted') {
@@ -268,6 +272,7 @@
             $unexpted++;
           }
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated cash advance types');
         $response           = array(
           'success_message' => 'Data updated successfully',
           'failedInsert' => $failedInsert,
@@ -303,7 +308,7 @@
         $updated = 0;
         $unexpted = 0;
         foreach ($filteredData as $data) {
-          $res = $this->benefits_model->update_setting_tables($table, $data, $edit_user); 
+          $res = $this->benefits_model->update_setting_tables($table, $data, $edit_user);
           if ($res == 'failedInsert') {
             $failedInsert++;
           } else if ($res == 'inserted') {
@@ -316,6 +321,7 @@
             $unexpted++;
           }
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated reimbursement types');
         $response           = array(
           'success_message' => 'Data updated successfully',
           'failedInsert' => $failedInsert,
@@ -519,6 +525,7 @@
       $table = 'tbl_benefits_reimbursement';
       $res  = $this->benefits_model->add_table_data($table, $input_data);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added reimbursement');
         $this->session->set_flashdata('SUCC', 'Successfully added');
         redirect('benefits/reimbursement');
       } else {
@@ -540,6 +547,7 @@
       $table = 'tbl_benefits_cashadvance';
       $res  = $this->benefits_model->add_table_data($table, $input_data);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added cash advance');
         $this->session->set_flashdata('SUCC', 'Successfully added');
         redirect('benefits/cashadvance');
       } else {
@@ -574,6 +582,7 @@
       $table = 'tbl_benefits_reimbursement';
       $res  = $this->benefits_model->update_table_data($table, $input_data,$id);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved reimbursement');
         $this->session->set_flashdata('SUCC', 'Successfully updated');
         redirect('benefits/reimbursement');
       } else {
@@ -594,6 +603,7 @@
       $table = 'tbl_benefits_cashadvance';
       $res  = $this->benefits_model->update_table_data($table, $input_data,$id);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved cash advance');
         $this->session->set_flashdata('SUCC', 'Successfully updated');
         redirect('benefits/cashadvance');
       } else {
@@ -614,6 +624,7 @@
       $table = 'tbl_benefits_reimbursement';
       $res  = $this->benefits_model->update_table_data($table, $input_data,$id);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited reimbursement');
         $this->session->set_flashdata('SUCC', 'Successfully added');
         redirect('benefits/reimbursement');
       } else {
@@ -781,6 +792,7 @@
         $data[] = array('id' => $id, 'status' => 'Active');
       }
       $res                                        = $this->benefits_model->UPDATE_BULK_ACTIVATE($data, $table);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk activated benefits');
       $this->session->set_userdata('SESS_SUCCESS', 'Successfully Updated!');
       if ($table == 'tbl_payroll_deductions') {
         redirect('benefits/deductions');
@@ -801,8 +813,9 @@
         $data[] = array('id' => $id, 'status' => 'Inactive');
       }
       $res                                           = $this->benefits_model->UPDATE_BULK_ACTIVATE($data, $table);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk deactivated benefits');
       $this->session->set_userdata('SESS_SUCCESS', 'Successfully Updated!');
-      
+
       if ($table == 'tbl_payroll_deductions') {
         redirect('benefits/deductions');
       }
@@ -899,6 +912,7 @@
       $type             = $this->input->post('type');
 
       $this->benefits_model->INSERT_TAXABLE_TYPES($name, $type);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added taxable type');
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('benefits/taxable_type');
     }
@@ -908,6 +922,7 @@
       $type             = $this->input->post('type');
 
       $this->benefits_model->INSERT_NONTAXABLE_TYPES($name, $type);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added nontaxable type');
       $this->session->set_userdata('SUCCESS', 'Non-Taxable Added Successfully!');
       redirect('benefits/nontaxable_type');
     }
@@ -918,6 +933,7 @@
       $type             = $this->input->post('type');
 
       $this->benefits_model->UPDATE_TAXABLE_TYPES($name, $type, $type_id);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated taxable type');
       $this->session->set_userdata('SUCCESS', 'Taxable type updated successfully!');
       redirect('benefits/taxable_type');
       
@@ -930,6 +946,7 @@
       $type             = $this->input->post('type');
 
       $this->benefits_model->UPDATE_NONTAXABLE_TYPES($name, $type, $type_id);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated nontaxable type');
       $this->session->set_userdata('SUCCESS', 'Non-Taxable type updated successfully!');
       redirect('benefits/nontaxable_type');
       
@@ -1085,6 +1102,7 @@
       try {
         $res = $this->benefits_model->delete_loan($id);
         if ($res) {
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted loans');
           $this->session->set_flashdata('SUCC','Data deleted successfully');
           $response = array('success_message' => 'Data deleted successfully');
 
@@ -1107,6 +1125,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->INSERT_LOANS_DATA($data_row);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added loans');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1122,6 +1141,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_BENEFITS_LOAN($data_row);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated loan benefits');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1147,6 +1167,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->UPDATE_DATA($data_row, $selectedValue);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated benefits data');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1173,6 +1194,7 @@
         foreach ($idsToDelete as $data_row) {
           $this->benefits_model->DELETE_COUNT_DATA($data_row, $periodValue, $typeValue, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted benefits data');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1199,6 +1221,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->UPDATE_COUNT_DATA($data_row, $periodValue, $typeValue, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated benefits data');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1233,6 +1256,7 @@
         foreach ($updatedData as $data_row) {
           $test = $this->benefits_model->UPDATE_FIXED_DATA($data_row, $periodValue, $typeValue, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated fixed benefits');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1251,6 +1275,7 @@
         foreach ($updatedData as $data_row) {
           $test = $this->benefits_model->UPDATE_NONTAXABLE_DATA($data_row, $periodValue, $typeValue, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated nontaxable benefits');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1284,6 +1309,7 @@
         foreach ($updatedData as $data_row) {
           $test = $this->benefits_model->UPDATE_OTHER_DEDUCTION_DATA($data_row, $periodValue, $typeValue, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated other deductions');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1320,6 +1346,7 @@
         foreach ($updatedData as $data_row) {
           $test = $this->benefits_model->UPDATE_UNION_DUES_DATA($data_row, $periodValue, $typeValue, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated union dues');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1335,6 +1362,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->DELETE_FIXED_DATA($data_row);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted fixed benefits');
         $response = array('success_message' => 'Data deleted successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Data deletion error: ' . $e->getMessage());
@@ -1367,6 +1395,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->UPDATE_ADJUSTMENT_DATA($data_row, $periodValue, $typeValue);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated adjustment');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1393,6 +1422,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->DELETE_ADJUSTMENT_DATA($data_row);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted adjustment');
         $response = array('success_message' => 'Data deleted successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Data deletion error: ' . $e->getMessage());
@@ -1406,6 +1436,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_DYNAMIC_STD($data_row, $type, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated dynamic benefits');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1419,6 +1450,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_DYNAMIC_TYPE($data_row, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated dynamic benefits');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1438,6 +1470,8 @@
         if (count($idFailedToDelete)) {
           $commaSeparatedString = implode(', ', $idFailedToDelete);
           $response = array('warning_message' => 'Failed to update id:  ' . $commaSeparatedString);
+        } else {
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted fixed type');
         }
       } catch (Exception $e) {
         $response = array('warning_message' => 'Data deletion error: ' . $e->getMessage());
@@ -1457,6 +1491,8 @@
         if (count($idFailedToDelete)) {
           $commaSeparatedString = implode(', ', $idFailedToDelete);
           $response = array('warning_message' => 'Failed to update id:  ' . $commaSeparatedString);
+        } else {
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted dynamic benefits');
         }
       } catch (Exception $e) {
         $response = array('warning_message' => 'Data deletion error: ' . $e->getMessage());
@@ -1476,6 +1512,8 @@
         if (count($idFailedToDelete)) {
           $commaSeparatedString = implode(', ', $idFailedToDelete);
           $response = array('warning_message' => 'Failed to update id:  ' . $commaSeparatedString);
+        } else {
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted dynamic benefits');
         }
       } catch (Exception $e) {
         $response = array('warning_message' => 'Data deletion error: ' . $e->getMessage());
@@ -1490,6 +1528,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_FIXED_TYPE($data_row, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated fixed type');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1506,6 +1545,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->INSERT_CATEGORY($data_row, $type, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added benefits category');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1521,6 +1561,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->INSERT_NIGHTSHIFT_CATEGORY($data_row, $type, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added benefits category');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1536,6 +1577,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->INSERT_NIGHTSHIFT_CATEGORY_NONTAX($data_row, $type, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added benefits category');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1551,6 +1593,7 @@
         foreach ($updatedData as $data_row) {
           $this->benefits_model->INSERT_NONTAX_CATEGORY($data_row, $type, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added benefits category');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1567,6 +1610,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_OTHER_DEDUCTIONS_TYPE($data_row, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated deduction type');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1581,6 +1625,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_UNION_DUES_TYPE($data_row, $this->session->userdata('SESS_USER_ID'));
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated union dues type');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -1596,6 +1641,7 @@
         foreach ($data as $data_row) {
           $this->benefits_model->UPDATE_ADJUSTMENT_TYPE($data_row);
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated adjustment type');
         $response = array('success_message' => 'Data updated successfully');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());

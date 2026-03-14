@@ -7,6 +7,7 @@ class main_table_01 extends CI_Controller
   {
     parent::__construct();
     $this->load->model('templates/main_table_01_model');
+    $this->load->library('logger');
     // auto login starts
     $this->load->model('admin_model');
     $auto_login = $this->admin_model->get_system_setup_by_setting2('auto_login', '0');
@@ -83,6 +84,7 @@ class main_table_01 extends CI_Controller
     $set_array['edit_user']                 = $edit_user;
     $set_array['edit_date']                 = date("Y-m-d H:i:s");
     $this->$model->EDIT_TABLE_ROW($table, $id, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited table row');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -128,6 +130,7 @@ class main_table_01 extends CI_Controller
     $set_array['create_date']               = date("Y-m-d H:i:s");
     $set_array['edit_date']                 = date("Y-m-d H:i:s");
     $this->$model->ADD_TABLE_ROW($table, $set_array);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added table row');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -141,6 +144,7 @@ class main_table_01 extends CI_Controller
     $module_name                            = $this->input->get('module');
     $page_name                              = $this->input->get('page');
     $this->$model->DELETE_TABLE_ROW($id, $table, $edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted table row');
     $this->session->set_userdata('delete', 'Deleted Successfully!');
     redirect($module_name . "/" . $page_name);
   }
@@ -170,6 +174,7 @@ class main_table_01 extends CI_Controller
       $tab  = "All";
     }
     $this->$model->EDIT_BULK_STATUS($table, $status, $ids_int, $edit_user);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated table bulk status');
     $this->session->set_userdata('success', 'Submitted Successfully!');
     redirect($module_name . '/' . $page_name . '?page=' . $page . $row_url . $row . '&tab=' . $tab);
   }
@@ -201,6 +206,7 @@ class main_table_01 extends CI_Controller
     );
     $data['data_list']     = list($table_name, $module_name, $page_name, $module_title, $page_title) = explode('-', $decryption);
     $data['STANDARD_DATA'] = json_encode($this->$model->get_standard_data($data['data_list'][0]));
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Imported data from file');
 
     $this->load->view('templates/header');
     $this->load->view('templates/main_table_excel_views', $data);
@@ -218,6 +224,7 @@ class main_table_01 extends CI_Controller
         $this->main_table_01_model->update_data($tableName, $updatedData_row);
       }
       $response           = array('success_message' => 'Data updated successfully');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated table data');
     } catch (Exception $e) {
       $response           = array('warning_message' => 'Error updating data: ' . $e->getMessage());
     }
@@ -273,10 +280,11 @@ class main_table_01 extends CI_Controller
             }
           }
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Imported data from file');
         $this->session->set_userdata('success', 'Submitted Successfully!');
         redirect($module_name . '/' . $page_name);
       }
-    } else            
+    } else
     {
       $error =  $this->upload->display_errors();
       $this->session->set_userdata('SESS_ERR_MSG_INSRT_CSV', $error);

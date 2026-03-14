@@ -6,6 +6,7 @@ class administrators extends CI_Controller
     {
         parent::__construct();
         $this->load->library('uri');
+        $this->load->library('logger');
         $this->load->model('templates/main_nav_model');
         $this->load->model('templates/main_table_01_model');
         $this->load->model('modules/administrators_model');
@@ -150,6 +151,7 @@ class administrators extends CI_Controller
         $table = 'tbl_requests_list';
         $res = $this->administrators_model->insert_data_table($table, $input_data);
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added new request list');
             $this->session->set_flashdata('SUCC', 'Successfully Submitted');
         } else {
             $this->session->set_flashdata('ERR', 'Submission Failed');
@@ -174,7 +176,20 @@ class administrators extends CI_Controller
 
     function activity_logs()
     {
-        $data['C_ACTIVITIES']                  = $this->administrators_model->GET_ACTIVITY_LOGS();
+        $employee                              = $this->input->get('employee');
+        $limit                                 = $this->input->get('row') ? $this->input->get('row') : 25;
+        $page                                  = $this->input->get('page') ? $this->input->get('page') : 1;
+        $offset                                = $limit * ($page - 1);
+
+        $data['C_ACTIVITIES']                  = $this->administrators_model->GET_ACTIVITY_LOGS($employee, $limit, $offset);
+        $total_count                           = $this->administrators_model->GET_ACTIVITY_LOGS_COUNT($employee);
+        $excess                                = $total_count % $limit;
+        $data['C_DATA_COUNT']                  = $total_count;
+        $data['PAGES_COUNT']                   = $excess > 0 ? intval($total_count / $limit) + 1 : intval($total_count / $limit);
+        $data['PAGE']                          = $page;
+        $data['ROW']                           = $limit;
+        $data['C_ROW_DISPLAY']                 = array(10, 25, 50);
+        $data['EMPLOYEE_FILTER']               = $employee;
         $data['DATE_FORMAT']                   = $this->administrators_model->GET_SYSTEM_SETTING("date_format");
         $data['C_EMPLOYEES_ID']                = $this->administrators_model->GET_EMPLOYEE_IDS();
         $this->load->view('templates/header');
@@ -352,7 +367,7 @@ class administrators extends CI_Controller
             foreach ($data as $data_row) {
                 $this->administrators_model->update_data($data_row);
             }
-
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employee data (bulk update)');
             $response = array('messageSuccess' => 'Data updated successfully', 'result' => $result, 'count' => $count, 'data' => $data);
             echo json_encode($response);
             return;
@@ -393,6 +408,7 @@ class administrators extends CI_Controller
         try {
             $result = $this->administrators_model->SET_USER_ACCESS_EMPLOYEE($data['userId'], $data['value']);
             if (!$result) {
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated user access for employee ID: ' . $data['userId']);
                 $this->session->set_flashdata('SUCC', 'Updating User Successful');
                 $response = array('messageSuccess' => 'Updating User Successful');
             } else if ($result && $result['messageError']) {
@@ -415,6 +431,7 @@ class administrators extends CI_Controller
         try {
             $result = $this->administrators_model->SET_REMOTE_ATTENDANCE_EMPLOYEE($data['userId'], $data['value']);
             if (!$result) {
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated remote attendance for employee ID: ' . $data['userId']);
                 $this->session->set_flashdata('SUCC', 'Updating User Successful');
                 $response = array('messageSuccess' => 'Updating User Successful');
             } else if ($result && $result['messageError']) {
@@ -437,6 +454,7 @@ class administrators extends CI_Controller
         try {
             $result = $this->administrators_model->SET_ACTIVATION_EMPLOYEE($data['userId'], $data['value']);
             if (!$result) {
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated user activation status for employee ID: ' . $data['userId']);
                 $this->session->set_flashdata('SUCC', 'Updating User Successful');
                 $response = array('messageSuccess' => 'Updating User Successful');
             } else if ($result && $result['messageError']) {
@@ -457,6 +475,7 @@ class administrators extends CI_Controller
     function user_activation($user_id, $is_disabled)
     {
         $this->administrators_model->SET_ACTIVATION_EMPLOYEE($user_id, $is_disabled);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), ($is_disabled ? 'Deactivated' : 'Activated') . ' user ID: ' . $user_id);
         redirect("administrators/access");
     }
 
@@ -576,6 +595,7 @@ class administrators extends CI_Controller
         // $settings= array_keys($input_data);
         $res = $this->administrators_model->UPDATE_HOME_SETTINGS($input_data);
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated system settings');
             $this->session->set_flashdata('SUCC', 'Successfully updated');
         } else {
             $this->session->set_flashdata('ERR', 'Settings Unable to update');
@@ -691,6 +711,7 @@ class administrators extends CI_Controller
         // return;
         $res = $this->administrators_model->UPDATE_HOME_SETTINGS($input_data);
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated geo fence settings');
             $this->session->set_flashdata('SUCC', 'Successfully updated');
         } else {
             $this->session->set_flashdata('ERR', 'Settings Unable to update');
@@ -725,6 +746,7 @@ class administrators extends CI_Controller
         $res = $this->administrators_model->UPDATE_SYSTEM_SETUP($input_data);
         // var_dump($res);die();
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employee password settings');
             $this->session->set_flashdata('SUCC', 'Settings Successfully updated');
         } else {
             $this->session->set_flashdata('ERR', 'Settings Unable to update');
@@ -2607,6 +2629,7 @@ class administrators extends CI_Controller
         } else {
             $response                               = $this->administrators_model->UPDATE_USER_ACCESS_DATA($this->input->post('position_id'), $name, "", "");
         }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated user access: ' . $name);
         echo 'test';
         var_dump($data2);
         $this->session->set_userdata('SESS_SUCC_MSG', 'User Accessibility List Updated Successfully!');
@@ -2630,7 +2653,7 @@ class administrators extends CI_Controller
         $modules = implode(", ", $modules);
 
         $this->administrators_model->ADD_USER_ACCESS($name, $data, $modules);
-
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added new user access: ' . $name);
         $this->session->set_userdata('SESS_SUCC_MSG', 'New List Added Successfully!');
         redirect("administrators/useraccess");
     }
@@ -3828,6 +3851,7 @@ class administrators extends CI_Controller
         $remarks                                 = $this->input->post('insrt_remarks');
 
         $this->administrators_model->MOD_INSERT_IP($create_date, $ip_add, $remarks, $status);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added IP address: ' . $ip_add);
         $this->session->set_userdata('SESS_SUCC_MSG_INSRT', 'IP Address Added Successfully!');
         redirect('administrators/ip_address');
     }
@@ -3835,6 +3859,7 @@ class administrators extends CI_Controller
     function delete_id_address($id)
     {
         $this->administrators_model->MOD_DELETE_IP_ADDRESS($id);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted IP address ID: ' . $id);
         $this->session->set_userdata('SESS_SUCC_MSG_DELETE', 'IP Address Deleted Successfully!');
         redirect('administrators/ip_address');
     }
@@ -3848,11 +3873,7 @@ class administrators extends CI_Controller
         // var_dump($empl_id);
         // var_dump($reset_pass);
         $res                                = $this->administrators_model->MOD_RESET_USER_PASSWORD($empl_id, $reset_pass);
-        // if($res){
-        //     $this->session->set_flashdata('SESS_PASS', true);
-        // }else{
-        //     $this->session->set_flashdata('SESS_PASS', false);
-        // }
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Reset password for employee ID: ' . $empl_id);
         echo $res;
         // redirect('administrators/access');
         // echo(json_encode($data));
@@ -3866,6 +3887,7 @@ class administrators extends CI_Controller
         $empl_id                            = $this->input->post('empl_id');
 
         $data = $this->administrators_model->MOD_UPDT_USER_ACCESS($user_access, $remote_attendance, $disable, $empl_id);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated user access for employee ID: ' . $empl_id);
         echo (json_encode($data));
     }
 
@@ -3876,6 +3898,7 @@ class administrators extends CI_Controller
         $checked = ($value == '') ? 0 : 1;
         var_dump($checked);
         $this->administrators_model->MOD_UPDATE_STATUS($checked, $id);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated structure setting ID: ' . $id);
         redirect("administrators/structuresettings");
     }
 
@@ -3885,6 +3908,7 @@ class administrators extends CI_Controller
         $value                              = $this->input->post('val_setting');
         $checked                            = ($value == '') ? 0 : 1;
         $this->administrators_model->MOD_UPDATE_IP_ADDRESS($checked, $setting);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated IP address restriction setting');
         redirect("administrators/ip_address");
     }
 
@@ -3893,6 +3917,7 @@ class administrators extends CI_Controller
         $checked                            = isset($_POST["check_status"]) ? 1 : 0;
         $res                                = $this->administrators_model->MOD_UPDATE_STATUS($checked, $id);
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated status setting ID: ' . $id);
             $this->session->set_userdata('SUCC', 'Successfully updated');
             return;
         }
@@ -3976,6 +4001,7 @@ class administrators extends CI_Controller
             }
         }
 
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated general settings');
         $this->session->set_userdata('SESS_SUCC_UPDATE', ' General Settings Updated Successfully!');
         redirect('administrators/generalsettings');
     }
@@ -3991,6 +4017,7 @@ class administrators extends CI_Controller
         );
 
         $this->administrators_model->update_general_setting($data);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated date format settings');
         $this->session->set_userdata('SESS_SUCC_UPDATE', 'Date Settings Updated Successfully!');
         redirect('administrators/date_format_settings');
     }

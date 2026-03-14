@@ -11,6 +11,7 @@ class leaves extends CI_Controller
 		$this->load->model('modules/selfservices_model');
 		$this->load->library('system_functions');
 		$this->load->library('technos_encryption');
+		$this->load->library('logger');
 
 		// auto login starts
 		$this->load->model('admin_model');
@@ -76,13 +77,14 @@ class leaves extends CI_Controller
 		}
 		if (($inserted > 0 || $updated > 0) && $failed < 1) {
 			$this->session->set_flashdata('SUCC','Updated Successfully');
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave entitlement');
 			$response = array(
 					'messageSuccess' => 'Updated Successfully',
 					'inserted' => $inserted,
 					'updated' => $updated,
 					'failed' => $failed,
 			);
-			
+
 
 		} else if (($inserted > 0 || $updated > 0) && $failed > 0){
 			$this->session->set_flashdata('ERR','Some are not Updated.');
@@ -133,6 +135,7 @@ class leaves extends CI_Controller
 					$unexpted++;
 				}
 			}
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave type');
 			$response           = array(
 				'success_message' => 'Data updated successfully',
 				'failedInsert' => $failedInsert,
@@ -172,6 +175,7 @@ class leaves extends CI_Controller
 
 		$res = $this->leaves_model->UPDATE_LEAVE_SETTINGS($input_data);
 		if ($res) {
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave settings');
 			$this->session->set_flashdata('SUCC', 'Leave Settings Successfully updated');
 		} else {
 			$this->session->set_flashdata('ERR', 'Leave Settings Unable to update');
@@ -252,7 +256,8 @@ class leaves extends CI_Controller
 		$data['CHILD_LEAVES'] = $this->leaves_model->GET_REQUEST_CHILD_LEAVE($request_id);
 		$data['LEAVE_TYPES']    = $this->leaves_model->MOD_DISP_LEAVETYPES();
 		$data['isLeaveHours']   = $this->leaves_model->get_leaves_settings_by_setting('isLeaveHours','1');
-	
+
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited leave request');
 		$this->load->view('templates/header');
 		$this->load->view('modules/leaves/edit_leave_request_views', $data);
 	}
@@ -538,6 +543,7 @@ class leaves extends CI_Controller
 		$type 					= $input_data['type'];
 	
 		$this->leaves_model->UPDATE_REQUEST_LEAVE($input_data);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leaves');
 		$this->session->set_flashdata('SUCC', 'Leave Successfully updated');
 		redirect('requests/leave_lists');
 	}
@@ -869,6 +875,7 @@ class leaves extends CI_Controller
 			echo json_encode(array('messageError' => $messageError . ' . Please reload page and try again'));
 			return;
 		}
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added leave via API');
 		$this->session->set_flashdata('SUCC', 'Successfully Added');
 		echo json_encode(array('messageSuccess' => 'Successfully Submitted'));
 	}
@@ -944,6 +951,7 @@ class leaves extends CI_Controller
 		$joinednotUpdatedLeaves = '';
 		if (count($updatedLeaves) > 0 && count($notUpdatedLeaves) < 1) {
 			$joinedupdatedLeaves = implode(', ', $updatedLeaves);
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted leave directly');
 			$this->session->set_flashdata('SUCC', 'Successfully added: ' . $joinedupdatedLeaves);
 		} else {
 			$joinednotUpdatedLeaves = implode(', ', $notUpdatedLeaves);
@@ -1025,6 +1033,7 @@ class leaves extends CI_Controller
 		// }
 		if (count($updatedLeaves) > 0 && count($notUpdatedLeaves) < 1) {
 			$joinedupdatedLeaves = implode(', ', $updatedLeaves);
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave directly');
 			$this->session->set_flashdata('SUCC', 'Successfully updated: ' . $joinedupdatedLeaves);
 		} else {
 			$joinednotUpdatedLeaves = implode(', ', $notUpdatedLeaves);
@@ -1287,6 +1296,7 @@ class leaves extends CI_Controller
 		$input_data = $this->input->post();
 		$res = $this->leaves_model->UPDATE_LEAVE($input_data, $id);
 		if ($res) {
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave');
 			$this->session->set_flashdata('SUCC', 'Successfully updated');
 		} else {
 			$this->session->set_flashdata('ERR', 'Unable to update');
@@ -1308,6 +1318,7 @@ class leaves extends CI_Controller
 		$id = $this->input->post('rowId');
 		$status = "Withdrawed";
 		$res = $this->leaves_model->MOD_UPDATE_LEAVE_STATUS($id, $status);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Withdrew leave request');
 		echo $res;
 		// $this->session->set_userdata('SUCC', 'Withdraw Leave Updated Successfully!');
 		// redirect('selfservices/my_leaves');
@@ -1466,6 +1477,7 @@ class leaves extends CI_Controller
 							$requested_by 			= $this->session->userdata('SESS_USER_ID');
 							$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 							$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+							$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave');
 							$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 							redirect($url_directory);
 						}
@@ -1551,6 +1563,7 @@ class leaves extends CI_Controller
 						$requested_by 		= $this->session->userdata('SESS_USER_ID');
 						$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 						$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+						$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave');
 						$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 						redirect($url_directory);
 					}
@@ -1632,6 +1645,7 @@ class leaves extends CI_Controller
 					$requested_by 			= $this->session->userdata('SESS_USER_ID');
 					$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 					$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+					$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave');
 					$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 					redirect($url_directory);
 				}
@@ -1772,6 +1786,7 @@ class leaves extends CI_Controller
 								$requested_by 			= $this->session->userdata('SESS_USER_ID');
 								$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 								$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+								$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave');
 								$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 								redirect($url_directory);
 							} else {
@@ -1860,6 +1875,7 @@ class leaves extends CI_Controller
 								$requested_by 			= $this->session->userdata('SESS_USER_ID');
 								$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 								$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+								$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave');
 								$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 								redirect($url_directory);
 							} else {
@@ -1947,6 +1963,7 @@ class leaves extends CI_Controller
 						$requested_by 				= $this->session->userdata('SESS_USER_ID');
 						$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 						$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+						$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave');
 						$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application submitted successfully!');
 						redirect($url_directory);
 					} else {
@@ -1972,6 +1989,7 @@ class leaves extends CI_Controller
 		$status 									= $this->input->post('leave_status');
 		$row_id 									= $this->input->post('row_id');
 		$this->leaves_model->MOD_UPDT_LEAVE_DETAILS($date_requested, $date_leave, $type, $leave_reason, $duration, $status, $row_id);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave details');
 		$this->session->set_userdata('SESS_SUCC_MSG_UPDT_APPLY_LEAVE', 'Updated Successfully');
 		redirect('leaves/leave_lists');
 	}
@@ -2494,6 +2512,7 @@ class leaves extends CI_Controller
 			}
 		}
 
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave entitlement');
 		$this->session->set_userdata('SESS_SUCCESS', 'Updated Successfully!');
 		if (isset($_SERVER["HTTP_REFERER"])) {
 			redirect($_SERVER["HTTP_REFERER"]);
@@ -2583,6 +2602,7 @@ class leaves extends CI_Controller
 		$total_leave_balance 				= $leave_balance[$db_leave_type] + $value;
 		$this->leaves_model->MOD_UPDT_LEAVE_BALANCE($db_leave_type, $total_leave_balance, $employee_id);
 		$this->leaves_model->MOD_INSRT_ENTITLEMENT($date, $leave_type, $comment, $assigned_by, $employee_id, $value, $total_leave_balance);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted leave entitlement');
 		$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ENTITLEMENT', 'Leave balance added successfully!');
 		redirect('leaves/entitlements');
 	}
@@ -2769,6 +2789,7 @@ class leaves extends CI_Controller
 			}
 		}
 
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned leave approvers');
 		$this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPROVER', "Approval Route Updated Successfully!");
 
 		if (isset($_SERVER["HTTP_REFERER"])) {
@@ -2794,6 +2815,7 @@ class leaves extends CI_Controller
 		$app3b 								= $this->input->post('insrt_approver_3b');
 
 		$this->leaves_model->MOD_INSERT_APPROVER_DATA($emp_id, $app1a, $app1b, $app2a, $app2b, $app3a, $app3b);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added leave approval');
 		$this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPROVER', "Approval Route Added Successfully!");
 		redirect('leaves/approval_routes');
 	}
@@ -2896,6 +2918,7 @@ class leaves extends CI_Controller
 		$value                              = $this->input->post('val_setting');
 		$checked                            = ($value == '') ? 0 : 1;
 		$this->leaves_model->MOD_UPDATE_LEAVE_SETTING($checked, $setting);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave setting');
 		redirect("leaves/leave_parameter");
 	}
 
@@ -2907,6 +2930,7 @@ class leaves extends CI_Controller
 		);
 
 		$this->leaves_model->UPDATE_SYSTEM_SETTING($data);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated leave general settings');
 		$this->session->set_userdata('SESS_SUCC_UPDATE', 'Successfully updated!');
 		redirect('leaves/leave_parameter');
 	}

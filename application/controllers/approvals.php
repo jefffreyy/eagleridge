@@ -5,6 +5,7 @@ class approvals extends CI_Controller {
         parent::__construct();
         $this->load->library('technos_encryption');
         $this->load->library('system_functions');
+        $this->load->library('logger');
         $this->load->model('modules/approval_model');
         // auto login starts
         $this->load->model('admin_model');
@@ -196,6 +197,7 @@ class approvals extends CI_Controller {
     //   $this->approval_model->UPDATE_OVERTIME_ASSIGN($status, $emp_id, $date_created, $request->id);
       $res=$this->approval_model->APPROVE_REQUEST($decrypted_data->table,$decrypted_data->id,$decrypted_data->approver,
                                                     $decrypted_data->approver_id,$decrypted_data->approver_date_col,$status);
+      $this->logger->log_activity($approver_id, 'Approved ' . $approval_empl_type . ' request [' . str_pad($request->id, 5, '0', STR_PAD_LEFT) . '] - Status: ' . $status);
       $notif_data     = array(
         'create_date' => date('Y-m-d H:i:s'), 'empl_id' => $request->empl_id, 'type' => $approval_empl_type,
         'content_id' => $request->id, 'location' => $employee_notif_location, 'description' => $description
@@ -237,6 +239,7 @@ class approvals extends CI_Controller {
     //   }
       $res=$this->approval_model->APPROVE_REQUEST($decrypted_data->table,$decrypted_data->id,$decrypted_data->approver,
                                                     $decrypted_data->approver_id,$decrypted_data->approver_date_col,$status);
+      $this->logger->log_activity($approver_id, 'Approved ' . $approval_empl_type . ' request [' . str_pad($request->id, 5, '0', STR_PAD_LEFT) . '] - Status: ' . $status);
       $notif_data = array(
         'create_date' => date('Y-m-d H:i:s'), 'empl_id' => $request->empl_id, 'type' => $approval_empl_type,
         'content_id' => $request->id, 'location' => $employee_notif_location, 'description' => $description
@@ -271,6 +274,7 @@ class approvals extends CI_Controller {
     //   }
       $res=$this->approval_model->APPROVE_REQUEST($decrypted_data->table,$decrypted_data->id,$decrypted_data->approver,
                                                     $decrypted_data->approver_id,$decrypted_data->approver_date_col,$status);
+      $this->logger->log_activity($approver_id, 'Approved ' . $approval_empl_type . ' request [' . str_pad($request->id, 5, '0', STR_PAD_LEFT) . '] - Status: ' . $status);
       $notif_data = array(
         'create_date' => date('Y-m-d H:i:s'), 'empl_id' => $request->empl_id, 'type' => $approval_empl_type,
         'content_id' => $request->id, 'location' => $employee_notif_location, 'description' => $description
@@ -313,6 +317,7 @@ class approvals extends CI_Controller {
     //   }
       $res=$this->approval_model->APPROVE_REQUEST($decrypted_data->table,$decrypted_data->id,$decrypted_data->approver,
                                                     $decrypted_data->approver_id,$decrypted_data->approver_date_col,$status);
+      $this->logger->log_activity($approver_id, 'Approved ' . $approval_empl_type . ' request [' . str_pad($request->id, 5, '0', STR_PAD_LEFT) . '] - Status: ' . $status);
       $notif_data = array(
         'create_date' => date('Y-m-d H:i:s'), 'empl_id' => $request->empl_id, 'type' => $approval_empl_type,
         'content_id' => $request->id, 'location' => $employee_notif_location, 'description' => $description
@@ -347,6 +352,7 @@ class approvals extends CI_Controller {
       $status       = 'Approved';
       $res=$this->approval_model->APPROVE_REQUEST($decrypted_data->table,$decrypted_data->id,$decrypted_data->approver,
                                                     $decrypted_data->approver_id,$decrypted_data->approver_date_col,$status);
+      $this->logger->log_activity($approver_id, 'Approved ' . $approval_empl_type . ' request [' . str_pad($request->id, 5, '0', STR_PAD_LEFT) . '] - Status: ' . $status);
       $description = $notif_text. str_pad($request->id, 5, '0', STR_PAD_LEFT) . "] has been fully approved by " . $approver_name;
       $notif_data = array(
         'create_date' => date('Y-m-d H:i:s'), 'empl_id' => $request->empl_id, 'type' => $approval_empl_type,
@@ -375,6 +381,7 @@ class approvals extends CI_Controller {
     );
     $res=$this->approval_model->APPROVE_REQUEST($decrypted_data->table,$decrypted_data->id,$decrypted_data->approver,
                                                     $decrypted_data->approver_id,$decrypted_data->approver_date_col,$status);
+    $this->logger->log_activity($approver_id, 'Rejected ' . $approval_empl_type . ' request [' . str_pad($request->id, 5, '0', STR_PAD_LEFT) . ']');
     $this->approval_model->ADD_NOTIFICATION($notif_data);
   }
     

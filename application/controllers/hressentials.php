@@ -10,6 +10,7 @@ class hressentials extends CI_Controller
     $this->load->model('templates/main_table_02_model');
     $this->load->model('modules/hressentials_model');
     $this->load->library('system_functions');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -132,9 +133,10 @@ class hressentials extends CI_Controller
         $res=$this->hressentials_model->ADD_BATCH_DATA('tbl_participants',$participant_data);
         if($res){
           $this->session->set_flashdata('SUCC',"Successfully added new activity");
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added HR activity');
         }
       }
-      
+
       redirect('hressentials/activities');
     }
   }
@@ -191,12 +193,13 @@ class hressentials extends CI_Controller
           $participant_data[]       = $temp_data;
         }
         $res=$this->hressentials_model->UPDATE_PARTICIPANTS($id,$participant_data);
-        
+
         if($res){
           $this->session->set_flashdata('SUCC',"Successfully updated activity");
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated HR activity');
         }
       }
-      
+
       redirect('hressentials/activities');
     }
   }
@@ -445,6 +448,7 @@ class hressentials extends CI_Controller
     $input_data['edit_date'] = date('Y-m-d H:i:s');
     $res = $this->hressentials_model->UPDATE_ANNOUNCEMENT($input_data['id'], $input_data);
     $this->session->set_flashdata('SUCC', 'Successfully Updated');
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated announcement');
     redirect('hressentials/announcements');
   }
 
@@ -468,6 +472,7 @@ class hressentials extends CI_Controller
     $res = $this->hressentials_model->ADD_DATA('tbl_hr_announcements', $input_data);
     if ($res) {
         $this->session->set_flashdata('SUCC', 'Successfully added');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added announcement');
     } else {
         $this->session->set_flashdata('ERR', 'Fail to add new data');
         redirect('hressentials/add_announcement');
@@ -501,6 +506,7 @@ class hressentials extends CI_Controller
     $res          = $this->hressentials_model->BULK_ACTIVATE($table, 'Active', $ids);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully Deactivated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Activated announcement');
       redirect('hressentials/' . $input_data['sub_url']);
     } else {
       $this->session->set_flashdata('ERR', 'Fail to Deactivated');
@@ -516,6 +522,7 @@ class hressentials extends CI_Controller
     $res          = $this->hressentials_model->BULK_ACTIVATE($table, 'Inactive', $ids);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully Deactivated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deactivated announcement');
       redirect('hressentials/' . $input_data['sub_url']);
     } else {
       $this->session->set_flashdata('ERR', 'Fail to Deactivated');
@@ -561,6 +568,7 @@ class hressentials extends CI_Controller
     $res = $this->hressentials_model->ADD_DATA('tbl_hr_warnings', $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added warning');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('hressentials/add_warning');
@@ -598,6 +606,7 @@ class hressentials extends CI_Controller
         $input_data['edit_date'] = date('Y-m-d H:i:s');
         $res = $this->hressentials_model->UPDATE_WARNING($id, $input_data);
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated warning');
         redirect('hressentials/warnings');
   }
 
@@ -653,9 +662,10 @@ class hressentials extends CI_Controller
     $input_data['edit_date']    = date('Y-m-d H:i:s');
     $input_data['edit_user']    = $this->session->userdata('SESS_USER_ID');
     $res = $this->hressentials_model->ADD_DATA('tbl_hr_supports', $input_data);
-    
+
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added support request');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('hressentials/add_support');
@@ -677,6 +687,7 @@ function update_support(){
         $input_data['edit_date'] = date('Y-m-d H:i:s');
         $res = $this->hressentials_model->UPDATE_DATA('tbl_hr_supports',$input_data,$input_data['id']);
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated support request');
         redirect('hressentials/supports');
 }
   function forms()
@@ -811,9 +822,10 @@ function update_support(){
     $input_data['edit_date']    = date('Y-m-d H:i:s');
     $input_data['edit_user']    = $this->session->userdata('SESS_USER_ID');
     $res = $this->hressentials_model->ADD_DATA('tbl_hr_complaints', $input_data);
-    
+
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added complaint');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('hressentials/add_complaint');
@@ -843,6 +855,7 @@ function update_support(){
         $input_data['edit_date'] = date('Y-m-d H:i:s');
         $res = $this->hressentials_model->UPDATE_DATA('tbl_hr_complaints',$input_data,$input_data['id']);
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated complaint');
         redirect('hressentials/complaints');
   }
   function show_complaint($id){
@@ -897,6 +910,7 @@ function update_support(){
     $res = $this->hressentials_model->ADD_DATA('tbl_hr_surveys', $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added survey');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('hressentials/add_survey');
@@ -927,6 +941,7 @@ function update_support(){
         $input_data['edit_date'] = date('Y-m-d H:i:s');
         $res = $this->hressentials_model->UPDATE_DATA('tbl_hr_surveys',$input_data,$input_data['id']);
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated survey');
         redirect('hressentials/surveys');
     }
     function show_survey($id){
@@ -1248,6 +1263,7 @@ function update_support(){
     $res = $this->hressentials_model->ADD_DATA('tbl_hr_policies', $input_data);
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Successfully added');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added policy');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
       redirect('hressentials/add_policies');
@@ -1291,6 +1307,7 @@ function update_support(){
       if ($res) {
         $res = $this->hressentials_model->UPDATE_POLICY($input_data['id'], $input_data);
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated policy');
       } else {
         redirect('hressentials/edit_policy/' . $input_data['id']);
         return;
@@ -1298,6 +1315,7 @@ function update_support(){
     }
     $res = $this->hressentials_model->UPDATE_POLICY($input_data['id'], $input_data);
     $this->session->set_flashdata('SUCC', 'Successfully Updated');
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated policy');
     redirect('hressentials/policies');
   }
 
@@ -1316,6 +1334,7 @@ function update_support(){
     if ($htmlContent) {
       try {
         $response = $this->hressentials_model->UPDATE_ABOUT_THE_COMPANY($htmlContent);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated company info');
       } catch (Exception $e) {
         $response = array('messageError' => 'Error Saving Welcome Message: ' . $e->getMessage());
       }
@@ -1430,6 +1449,7 @@ function update_support(){
     if ($htmlContent) {
       try {
         $response = $this->hressentials_model->UPDATE_MESSAGE($htmlContent);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated welcome message');
       } catch (Exception $e) {
         $response = array('messageError' => 'Error Saving Welcome Message: ' . $e->getMessage());
       }

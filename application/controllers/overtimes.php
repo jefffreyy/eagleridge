@@ -12,6 +12,7 @@ class overtimes extends CI_Controller
     $this->load->library('encrypt');
     $this->load->library('technos_encryption');
     $this->load->library('system_functions');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -81,6 +82,7 @@ class overtimes extends CI_Controller
     // var_dump($res);die();
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Overtime Settings Successfully updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated overtime employee list settings');
     } else {
       $this->session->set_flashdata('ERR', 'Overtime Settings Unable to update');
     }
@@ -128,6 +130,7 @@ class overtimes extends CI_Controller
         'updated' => $updated,
         'unexpted' => $unexpted,
       );
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated overtime departments');
     } catch (Exception $e) {
       $response           = array('warning_message' => 'Error updating data: ' . $e->getMessage());
     }
@@ -158,6 +161,7 @@ class overtimes extends CI_Controller
     // var_dump($res);die();
     if ($res) {
       $this->session->set_flashdata('SUCC', 'Overtime Settings Successfully Updated');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated overtime hours settings');
     } else {
       $this->session->set_flashdata('ERR', 'Overtime Settings Unable to Update');
     }
@@ -310,6 +314,9 @@ class overtimes extends CI_Controller
 
     $res                                    = $this->overtimes_model->ADD_DATA('tbl_overtimes', $input_data);
     $this->session->set_flashdata('SUCC', 'Successfully added');
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added recommendation overtime');
+    }
     // if ($is_enable_approvers == 0) {
     //   redirect('overtimes/overtime');
     //   return;
@@ -478,6 +485,7 @@ class overtimes extends CI_Controller
       '$is_duplicate' => $is_duplicate,
     );
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted overtime directly');
     $this->output->set_content_type('application/json')->set_output(json_encode($response));
   }
   function insert_holiday_work_direct()
@@ -548,6 +556,7 @@ class overtimes extends CI_Controller
       '$is_duplicate' => $is_duplicate,
     );
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted holiday work directly');
     $this->output->set_content_type('application/json')->set_output(json_encode($response));
   }
 
@@ -668,6 +677,7 @@ class overtimes extends CI_Controller
       '$is_duplicate' => $is_duplicate,
     );
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated overtime directly');
     $this->output->set_content_type('application/json')->set_output(json_encode($response));
   }
 
@@ -749,6 +759,7 @@ class overtimes extends CI_Controller
       '$is_duplicate' => $is_duplicate,
     );
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated holiday work directly');
     $this->output->set_content_type('application/json')->set_output(json_encode($response));
   }
 
@@ -805,6 +816,9 @@ class overtimes extends CI_Controller
     
     $res                                    = $this->overtimes_model->ADD_DATA('tbl_overtimes', $input_data);
     $this->session->set_flashdata('SUCC', 'Successfully added');
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added overtime request');
+    }
     // if ($is_enable_approvers == 0) {
     //   redirect('overtimes/overtime');
     //   return;
@@ -888,6 +902,7 @@ class overtimes extends CI_Controller
     $user_id      = $this->session->userdata('SESS_USER_ID');
     $res          = $this->overtimes_model->CANCEL_OT($input_data['id'], $user_id);
     $this->session->set_flashdata('SUCC', 'Withdraw Overtime Successfully Updated!');
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Cancelled overtime request');
     redirect($this->input->server('HTTP_REFERER'));
   }
 
@@ -897,6 +912,7 @@ class overtimes extends CI_Controller
     $user_id      = $this->session->userdata('SESS_USER_ID');
     $res          = $this->overtimes_model->CANCEL_APPROVED_OT($input_data['id'], $user_id, $input_data['comment']);
     $this->session->set_flashdata('SUCC', 'Withdraw Overtime Successfully Updated!');
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Cancelled approved overtime');
     redirect($this->input->server('HTTP_REFERER'));
   }
 
@@ -1145,6 +1161,9 @@ class overtimes extends CI_Controller
     $input_data['approver4'] = $approvers && $approvers->approver_4a ? $approvers->approver_4a : 0;
     $input_data['approver5'] = $approvers && $approvers->approver_5a ? $approvers->approver_5a : 0;
     $res                                    = $this->overtimes_model->ADD_DATA('tbl_holidaywork', $input_data);
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added holiday work request');
+    }
     if ($res && $input_data['status'] != 'Approved') {
       $requestor                    = $this->overtimes_model->GET_REQUESTOR('holiday work', $res);
       $description                  = "Holiday Work Application Review for [HDW" . str_pad($res, 5, '0', STR_PAD_LEFT) . "] by " . $requestor . " has been requested";

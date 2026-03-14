@@ -9,6 +9,7 @@ class home extends CI_Controller
     
     $this->load->model('home/home_model');
     $this->load->library('system_functions');
+    $this->load->library('logger');
     $this->load->model('modules/leaves_model');
     $this->load->model('modules/administrators_model');
 
@@ -426,6 +427,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved leave request [LEA' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $leave_assign       = $this->home_model->GET_LEAVE_ASSIGN($id);
     $approvers          = $this->home_model->GET_USER_APPROVERS($leave_assign->empl_id, 'tbl_approvers');
     $date_created       = date('Y-m-d H:i:s');
@@ -482,6 +484,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected leave request [LEA' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $leave_assign       = $this->home_model->GET_LEAVE_ASSIGN($id);
     $approvers          = $this->home_model->GET_USER_APPROVERS($leave_assign->empl_id, 'tbl_approvers');
     $status             = 'Rejected';
@@ -515,6 +518,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved holiday work request [HDW' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
 
     $holiday_work                             = $this->home_model->GET_HOLIDAYWORK_ASSIGN($id);
     $approvers                                = $this->home_model->GET_USER_APPROVERS($holiday_work->empl_id, 'tbl_approvers');
@@ -583,6 +587,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected holiday work request [HDW' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $holiday_work                          = $this->home_model->GET_HOLIDAYWORK_ASSIGN($id);
     $approvers                          = $this->home_model->GET_USER_APPROVERS($holiday_work->empl_id, 'tbl_approvers');
     $emp_id                                   = $this->session->userdata('SESS_USER_ID');
@@ -626,6 +631,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved overtime request [OVT' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $overtime_assign        = $this->home_model->GET_OVERTIME_ASSIGN($id);
     $approvers              = $this->home_model->GET_USER_APPROVERS($overtime_assign->empl_id, 'tbl_approvers');
 
@@ -691,6 +697,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected overtime request [OVT' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $overtime_assign                    = $this->home_model->GET_OVERTIME_ASSIGN($id);
     $date_created                       = date('Y-m-d H:i:s');
     $status                             = 'Rejected';
@@ -727,6 +734,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved time adjustment request [TAD' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $time_adjustment_assign             = $this->home_model->GET_TIME_ADJUSTMENT_ASSIGN($id);
     $approvers                          = $this->home_model->GET_USER_APPROVERS($time_adjustment_assign->empl_id, 'tbl_approvers');
     $date_created = date('Y-m-d H:i:s');
@@ -792,6 +800,7 @@ class home extends CI_Controller
     if (!$id) {
       redirect('home');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected time adjustment request [TAD' . str_pad($id, 5, '0', STR_PAD_LEFT) . ']');
     $time_adjustment_assign             = $this->home_model->GET_TIME_ADJUSTMENT_ASSIGN($id);
     $approvers                          = $this->home_model->GET_USER_APPROVERS($time_adjustment_assign->empl_id, 'tbl_approvers');
     $approver_name                      = "";

@@ -11,6 +11,7 @@ class login_payroll extends CI_Controller
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('session');
+        $this->load->library('logger');
     }
 
 
@@ -32,6 +33,7 @@ class login_payroll extends CI_Controller
 
         if ($response) {
             $this->session->set_userdata('SESS_USER_ID', 105);
+            $this->logger->log_activity(105, 'Payroll login successful');
             redirect('payrolls');
         } else {
             $this->session->set_userdata('SESS_ERR_MSG_INVALID1','Incorrect Password or Email');

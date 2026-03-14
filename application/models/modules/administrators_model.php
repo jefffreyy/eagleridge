@@ -286,11 +286,28 @@ class administrators_model extends CI_Model
         return $count;
     }
 
-    function GET_ACTIVITY_LOGS()
+    function GET_ACTIVITY_LOGS($employee = null, $limit = 25, $offset = 0)
     {
-        $sql   = "SELECT * FROM tbl_activity_logs  ORDER BY create_date DESC";
-        $query = $this->db->query($sql, array());
+        if ($employee) {
+            $sql   = "SELECT * FROM tbl_activity_logs WHERE empl_id = ? ORDER BY create_date DESC LIMIT ? OFFSET ?";
+            $query = $this->db->query($sql, array($employee, (int)$limit, (int)$offset));
+        } else {
+            $sql   = "SELECT * FROM tbl_activity_logs ORDER BY create_date DESC LIMIT ? OFFSET ?";
+            $query = $this->db->query($sql, array((int)$limit, (int)$offset));
+        }
         return $query->result_array();
+    }
+
+    function GET_ACTIVITY_LOGS_COUNT($employee = null)
+    {
+        if ($employee) {
+            $sql   = "SELECT COUNT(*) as total FROM tbl_activity_logs WHERE empl_id = ?";
+            $query = $this->db->query($sql, array($employee));
+        } else {
+            $sql   = "SELECT COUNT(*) as total FROM tbl_activity_logs";
+            $query = $this->db->query($sql, array());
+        }
+        return $query->row()->total;
     }
 
     function GET_EMPLOYEE_IDS()

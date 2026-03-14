@@ -11,6 +11,7 @@ class assets extends CI_Controller
         $this->load->model('templates/main_nav_model');
         $this->load->model('modules/benefits_model');
         $this->load->model('modules/assets_model');
+        $this->load->library('logger');
 
         // auto login starts
         $this->load->model('admin_model');
@@ -137,6 +138,7 @@ class assets extends CI_Controller
         $res = $this->assets_model->ADD_DATA('tbl_asset_assign', $input_data);
         if ($res) {
             $this->session->set_flashdata('SUCC', 'Successfully added');
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added new asset');
         } else {
             $this->session->set_flashdata('ERR', 'Fail to add new data');
             redirect('assets/edit_asset');
@@ -153,6 +155,7 @@ class assets extends CI_Controller
         $input_data['edit_user'] = $userId;
         $input_data['edit_date'] = date('Y-m-d H:i:s');
         $res = $this->assets_model->UPDATE_ASSET($input_data['id'], $table, $input_data);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated asset');
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
         redirect('assets/assetslists');
     }
@@ -209,6 +212,7 @@ class assets extends CI_Controller
         $res = $this->assets_model->ADD_DATA('tbl_std_companylocations', $input_data);
         if ($res) {
             $this->session->set_flashdata('SUCC', 'Successfully added');
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added location');
         } else {
             $this->session->set_flashdata('ERR', 'Fail to add new data');
             redirect('assets/add_location');
@@ -236,6 +240,7 @@ class assets extends CI_Controller
         $input_data['edit_date'] = date('Y-m-d H:i:s');
 
         $res = $this->assets_model->UPDATE_ASSET($input_data['id'], $table, $input_data);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated location');
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
         redirect('assets/locations');
     }
@@ -282,6 +287,7 @@ class assets extends CI_Controller
         $res = $this->assets_model->ADD_DATA('tbl_std_stockrooms', $input_data);
         if ($res) {
             $this->session->set_flashdata('SUCC', 'Successfully added');
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added stockroom');
         } else {
             $this->session->set_flashdata('ERR', 'Fail to add new data');
             redirect('assets/add_stockroom');
@@ -322,6 +328,7 @@ class assets extends CI_Controller
         $input_data['edit_date'] = date('Y-m-d H:i:s');
 
         $res = $this->assets_model->UPDATE_ASSET($input_data['id'], $table, $input_data);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated stockroom');
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
         redirect('assets/stockrooms');
 
@@ -361,6 +368,7 @@ class assets extends CI_Controller
         $res = $this->assets_model->ADD_DATA('tbl_std_assetcategories', $input_data);
         if ($res) {
             $this->session->set_flashdata('SUCC', 'Successfully added');
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added asset category');
         } else {
             $this->session->set_flashdata('ERR', 'Fail to add new data');
             redirect('assets/add_asset_category');
@@ -394,6 +402,7 @@ class assets extends CI_Controller
         $input_data['edit_date'] = date('Y-m-d H:i:s');
 
         $res = $this->assets_model->UPDATE_ASSET($input_data['id'], $table, $input_data);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated asset category');
         $this->session->set_flashdata('SUCC', 'Successfully Updated');
         redirect('assets/assetcategories');
     }
@@ -406,6 +415,7 @@ class assets extends CI_Controller
         $res          = $this->assets_model->BULK_ACTIVATE($table, 'Active', $ids);
         // $is_activated = $this->assets_model->CHECK_STATUS($table);
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Activated asset');
             $this->session->set_flashdata('SUCC', 'Successfully Activated');
         } else {
             $this->session->set_flashdata('ERR', 'Fail to Activated');
@@ -420,6 +430,7 @@ class assets extends CI_Controller
         $ids          = explode(' ', $input_data['list_mark_ids']);
         $res          = $this->assets_model->BULK_ACTIVATE($table, 'Inactive', $ids);
         if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deactivated asset');
             $this->session->set_flashdata('SUCC', 'Successfully Deactivated');
             redirect('assets/' . $input_data['sub_url']);
         } else {

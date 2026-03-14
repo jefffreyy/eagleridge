@@ -9,6 +9,7 @@ class offsets extends CI_Controller
 		$this->load->model('templates/main_table_02_model');
 		$this->load->model('modules/offsets_model');
 		$this->load->library('system_functions');
+		$this->load->library('logger');
 
 		// auto login starts
 		$this->load->model('admin_model');
@@ -198,8 +199,9 @@ class offsets extends CI_Controller
         //           return;
         //       }
         //   }  
-          $res                                            = $this->offsets_model->ADD_OFFSET_REQUEST($input_data); 
+          $res                                            = $this->offsets_model->ADD_OFFSET_REQUEST($input_data);
           if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added offset request');
             $this->session->set_flashdata('SUCC', 'Successfully added');
                 if($isApproversEnable==0){
                     redirect('offsets/offset_lists');
@@ -267,6 +269,7 @@ class offsets extends CI_Controller
 		$input_data = $this->input->post();
 		$res = $this->offsets_model->UPDATE_LEAVE($input_data, $id);
 		if ($res) {
+			$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated offset leave');
 			$this->session->set_flashdata('SUCC', 'Successfully updated');
 		} else {
 			$this->session->set_flashdata('ERR', 'Unable to update');
@@ -434,6 +437,7 @@ class offsets extends CI_Controller
 							$requested_by 			= $this->session->userdata('SESS_USER_ID');
 							$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 							$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+							$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset leave');
 							$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 							redirect($url_directory);
 						}
@@ -519,6 +523,7 @@ class offsets extends CI_Controller
 						$requested_by 		= $this->session->userdata('SESS_USER_ID');
 						$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 						$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+						$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset leave');
 						$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 						redirect($url_directory);
 					}
@@ -600,6 +605,7 @@ class offsets extends CI_Controller
 					$requested_by 			= $this->session->userdata('SESS_USER_ID');
 					$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 					$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+					$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset leave');
 					$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 					redirect($url_directory);
 				}
@@ -740,6 +746,7 @@ class offsets extends CI_Controller
 								$requested_by 			= $this->session->userdata('SESS_USER_ID');
 								$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 								$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+								$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset leave');
 								$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 								redirect($url_directory);
 							} else {
@@ -828,6 +835,7 @@ class offsets extends CI_Controller
 								$requested_by 			= $this->session->userdata('SESS_USER_ID');
 								$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 								$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+								$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset leave');
 								$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application assigned successfully!');
 								redirect($url_directory);
 							} else {
@@ -915,6 +923,7 @@ class offsets extends CI_Controller
 						$requested_by 				= $this->session->userdata('SESS_USER_ID');
 						$this->notif_model->MOD_INSRT_NOTIF_LOGS($employee_id, $empl_group, $appr_type, $reciever, $date_created, $message, $notif_status, $leave_insrt_id, $requested_by);
 						$this->notif_model->MOD_INSRT_APPLICATION_NOTIF_LOGS($requested_by, $message, $appr_type, $date_created, $leave_insrt_id, $notif_status);
+						$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset leave');
 						$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ASSIGN_LEAVE', 'Leave application submitted successfully!');
 						redirect($url_directory);
 					} else {
@@ -940,6 +949,7 @@ class offsets extends CI_Controller
 		$status 									= $this->input->post('leave_status');
 		$row_id 									= $this->input->post('row_id');
 		$this->offsets_model->MOD_UPDT_LEAVE_DETAILS($date_requested, $date_leave, $type, $leave_reason, $duration, $status, $row_id);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated offset leave details');
 		$this->session->set_userdata('SESS_SUCC_MSG_UPDT_APPLY_LEAVE', 'Updated Successfully');
 		redirect('leaves/leave_lists');
 	}
@@ -1197,6 +1207,7 @@ class offsets extends CI_Controller
 			}
 		}
 
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated offset entitlement');
 		$this->session->set_userdata('SESS_SUCCESS', 'Updated Successfully!');
 		if (isset($_SERVER["HTTP_REFERER"])) {
 			redirect($_SERVER["HTTP_REFERER"]);
@@ -1286,6 +1297,7 @@ class offsets extends CI_Controller
 		$total_leave_balance 				= $leave_balance[$db_leave_type] + $value;
 		$this->offsets_model->MOD_UPDT_LEAVE_BALANCE($db_leave_type, $total_leave_balance, $employee_id);
 		$this->offsets_model->MOD_INSRT_ENTITLEMENT($date, $leave_type, $comment, $assigned_by, $employee_id, $value, $total_leave_balance);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added offset entitlement');
 		$this->session->set_userdata('SESS_SUCC_MSG_INSRT_ENTITLEMENT', 'Leave balance added successfully!');
 		redirect('leaves/entitlements');
 	}
@@ -1472,6 +1484,7 @@ class offsets extends CI_Controller
 			}
 		}
 
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Assigned offset approvers');
 		$this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPROVER', "Approval Route Updated Successfully!");
 
 		if (isset($_SERVER["HTTP_REFERER"])) {
@@ -1497,6 +1510,7 @@ class offsets extends CI_Controller
 		$app3b 								= $this->input->post('insrt_approver_3b');
 
 		$this->offsets_model->MOD_INSERT_APPROVER_DATA($emp_id, $app1a, $app1b, $app2a, $app2b, $app3a, $app3b);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added offset approval');
 		$this->session->set_userdata('SESS_SUCC_MSG_INSRT_APPROVER', "Approval Route Added Successfully!");
 		redirect('leaves/approval_routes');
 	}
@@ -1597,6 +1611,7 @@ class offsets extends CI_Controller
 		$value                              = $this->input->post('val_setting');
 		$checked                            = ($value == '') ? 0 : 1;
 		$this->offsets_model->MOD_UPDATE_LEAVE_SETTING($checked, $setting);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated offset settings');
 		redirect("offsets/offset_parameter");
 	}
 
@@ -1610,6 +1625,7 @@ class offsets extends CI_Controller
 		);
 
 		$test = $this->offsets_model->UPDATE_SYSTEM_SETTING($data);
+		$this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated offset settings');
 		$this->session->set_userdata('SESS_SUCC_UPDATE', 'Successfully updated!');
 		redirect('offsets/offset_parameter');
 	}

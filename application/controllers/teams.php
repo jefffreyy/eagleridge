@@ -10,6 +10,7 @@ class teams extends CI_Controller
     $this->load->model('modules/leaves_model');
     $this->load->library('technos_encryption');
     $this->load->library('system_functions');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -479,6 +480,7 @@ class teams extends CI_Controller
     }
 
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed team shift change request');
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('teams/mychange_shift');
       return;
@@ -561,6 +563,7 @@ class teams extends CI_Controller
     }
 
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed team change-off request');
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('teams/team_change_off');
       return;
@@ -643,6 +646,7 @@ class teams extends CI_Controller
     }
 
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed team undertime request');
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('teams/undertime');
       return;
@@ -872,6 +876,7 @@ class teams extends CI_Controller
     } else {
       $res                                            = $this->selfservices_model->ADD_OFFSET_REQUEST($input_data);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed team offset request');
         $this->session->set_flashdata('SUCC', 'Successfully added');
         if ($isApproversEnable == 0) {
           redirect('teams/apply_offsets');
@@ -1394,6 +1399,7 @@ class teams extends CI_Controller
       $joinedAdded = '';
       $joinedNotAdded = '';
       if (count($added) > 0 && count($notAdded) < 1) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed team leave request');
         $joinedAdded = implode(', ', $added);
         $this->session->set_flashdata('SUCC', 'Successfully added: ' . $joinedAdded);
         redirect('teams/apply_leaves');
@@ -2213,6 +2219,9 @@ class teams extends CI_Controller
     $input_data['approver4'] = $approvers && $approvers->approver_4a ? $approvers->approver_4a : 0;
     $input_data['approver5'] = $approvers && $approvers->approver_5a ? $approvers->approver_5a : 0;
     $res                                            = $this->teams_model->ADD_DATA('tbl_holidaywork', $input_data);
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed team holiday work request');
+    }
     $this->session->set_flashdata('SUCC', 'Successfully added');
     // if ($is_enable_approvers == 0) {
     //   redirect('teams/apply_holiday_works');
@@ -2561,6 +2570,7 @@ class teams extends CI_Controller
       foreach ($uniqueCutoffData as $data_row) {
         $this->teams_model->update_shift_approval($data_row, $this->session->userdata('SESS_USER_ID'));
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated team shift assignment');
       $response = array('success_message' => 'Data updated successfully');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -2577,6 +2587,7 @@ class teams extends CI_Controller
       foreach ($updatedData as $data_row) {
         $this->teams_model->UPDATE_SHIFT_APPROVER($data_row, $this->session->userdata('SESS_USER_ID'));
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated team shift approval');
       $response = array('success_message' => 'Data updated successfully');
     } catch (Exception $e) {
       $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -2628,6 +2639,7 @@ class teams extends CI_Controller
         }
       }
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated team shift');
     if (isset($_SERVER["HTTP_REFERER"])) {
       redirect($_SERVER["HTTP_REFERER"]);
     }
@@ -2867,6 +2879,7 @@ class teams extends CI_Controller
 
     if ($approve == 'approve') {
       $this->teams_model->CHANGESHIFT_APPROVELEAVE($changeshift_id, $next_status, $approverdate);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved team shift change');
       $this->session->set_flashdata('SUCC', 'Change Shift request has been Approved!');
     } else {
       $this->teams_model->CHANGESHIFT_APPROVELEAVE($changeshift_id, 'Rejected', $approverdate);
@@ -2955,6 +2968,7 @@ class teams extends CI_Controller
 
     if ($approve == 'approve') {
       $this->teams_model->UNDERTIME_APPROVAL($undertime_id, $next_status, $approverdate);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved team undertime');
       $this->session->set_flashdata('SUCC', 'Undertime request has been Approved!');
     }
 

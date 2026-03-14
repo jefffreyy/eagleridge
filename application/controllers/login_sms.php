@@ -11,6 +11,7 @@ class login_sms extends CI_Controller
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('session');
+        $this->load->library('logger');
     }
 
 
@@ -32,6 +33,7 @@ class login_sms extends CI_Controller
 
         if ($response) {
             $this->session->set_userdata('SESS_USER_ID', 99999);
+            $this->logger->log_activity(99999, 'SMS login successful');
             redirect('sms_user');
         } else {
             $this->session->set_userdata('SESS_ERR_MSG_INVALID1','Incorrect Password or Email');

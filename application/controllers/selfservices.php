@@ -16,6 +16,7 @@ class selfservices extends CI_Controller
 
     $this->load->library('system_functions');
     $this->load->library('technos_encryption');
+    $this->load->library('logger');
     $this->isApproversEnable = $this->selfservices_model->GET_SYSTEM_SETUP('requireApprovers');
 
     // auto login starts
@@ -544,6 +545,7 @@ class selfservices extends CI_Controller
       redirect('selfservices/my_profile_personal?id=' . $user_id);
     } else {
       $this->selfservices_model->UPDATE_PERSONAL_DETAIL($first_name, $middlename, $lastname, $marital_status, $mobile_number, $birthdate, $gender, $nationality, $shirt_size, $email, $home_address, $current_address, $user_id);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated personal details');
       $edit_id = $this->session->userdata('SESS_USER_ID');
       $empl_id = $user_id;
       try {
@@ -2368,6 +2370,7 @@ class selfservices extends CI_Controller
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
 
     $this->exempt_undertime_action_approve($input_data, $approver_name, $request, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved exempt undertime request');
     $this->session->set_flashdata('SUCC', 'Undertime request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -2604,12 +2607,13 @@ class selfservices extends CI_Controller
     //   $this->selfservices_model->ADD_NOTIFICATION($notif_data);
     // }
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected exempt undertime request');
     $this->session->set_flashdata('SUCC', 'Undertime request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
   }
 
-  
+
 
   function update_approve_undertime()
   {
@@ -2622,6 +2626,7 @@ class selfservices extends CI_Controller
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
 
     $this->undertime_action_approve($input_data, $approver_name, $request, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved undertime request');
     $this->session->set_flashdata('SUCC', 'Undertime request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -2858,6 +2863,7 @@ class selfservices extends CI_Controller
     //   $this->selfservices_model->ADD_NOTIFICATION($notif_data);
     // }
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected undertime request');
     $this->session->set_flashdata('SUCC', 'Undertime request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
@@ -2876,6 +2882,7 @@ class selfservices extends CI_Controller
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
 
     $this->changeoff_action_approve($input_data, $approver_name, $changeoff_request, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved change-off request');
     $this->session->set_flashdata('SUCC', 'Change off request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -3118,6 +3125,7 @@ class selfservices extends CI_Controller
     //   $this->selfservices_model->ADD_NOTIFICATION($notif_data);
     // }
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected change-off request');
     $this->session->set_flashdata('SUCC', 'Change off request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
@@ -3139,6 +3147,7 @@ class selfservices extends CI_Controller
 
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $this->changeshift_action_approve($input_data, $approver_name, $offset_assign, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved shift change request');
     $this->session->set_flashdata('SUCC', 'Change shift request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -3379,6 +3388,7 @@ class selfservices extends CI_Controller
     // }
 
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected shift change request');
     $this->session->set_flashdata('SUCC', 'Change shift request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
@@ -3402,6 +3412,7 @@ class selfservices extends CI_Controller
 
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $this->offset_action_approve($input_data, $approver, $approver_name, $offset_assign, $offset_approvers, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved offset request');
     $this->session->set_flashdata('SUCC', 'Offset request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -3597,6 +3608,7 @@ class selfservices extends CI_Controller
     // $approver_list[]      = $this->selfservices_model->GET_EMPLOYEE_SPECIFIC_ROW($leave_assign->approver5);
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $this->leave_action_approve($input_data, $approver, $approver_name, $leave_assign, $leave_approvers, $id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved leave request');
     $this->session->set_flashdata('SUCC', 'Leave request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4065,6 +4077,7 @@ class selfservices extends CI_Controller
       $this->leave_action_approve($input_data, $approver, $approver_name, $leave_assign, $id);
       $this->session->set_flashdata('SUCC', 'Leave request has been approved!');
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk approved leave requests');
     redirect($this->input->server('HTTP_REFERER'));
   }
   function update_offset_assign()
@@ -4118,6 +4131,7 @@ class selfservices extends CI_Controller
       $this->selfservices_model->ADD_NOTIFICATION($notif_data);
     }
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved offset request');
     $this->session->set_flashdata('SUCC', 'Leave request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4183,6 +4197,7 @@ class selfservices extends CI_Controller
 
       $this->selfservices_model->ADD_NOTIFICATION($notif_data);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected offset request');
     $this->session->set_flashdata('SUCC', 'Offset request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
@@ -4199,6 +4214,7 @@ class selfservices extends CI_Controller
     // $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
 
     // $this->offset_action_reject($offset_assign, $id, $input_data['remarks']);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected offset request');
     $this->session->set_flashdata('SUCC', 'Offset request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
@@ -4216,6 +4232,7 @@ class selfservices extends CI_Controller
     $approver             = $this->selfservices_model->GET_EMPLOYEE_SPECIFIC_ROW($user_id);
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $this->leave_action_reject($leave_assign, $id, $input_data['remarks']);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected leave request');
     $this->session->set_flashdata('SUCC', 'Leave request has been rejected!');
 
     redirect($this->input->server('HTTP_REFERER'));
@@ -4303,6 +4320,7 @@ class selfservices extends CI_Controller
       }
     }
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk rejected offset requests');
     $this->session->set_flashdata('SUCC', 'Leave request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4360,6 +4378,7 @@ class selfservices extends CI_Controller
       //   }
     }
 
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk rejected leave requests');
     $this->session->set_flashdata('SUCC', 'Leave request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4380,6 +4399,7 @@ class selfservices extends CI_Controller
     $empl_approvers       = $this->selfservices_model->GET_USER_APPROVERS($input_data['empl_id'], 'tbl_approvers');
     // $this->overtime_action_approve($overtime_assign);
     $this->overtime_action_approve($overtime_assign, $overtime_approvers);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved overtime request');
 
     $this->session->set_flashdata('SUCC', 'Overtime request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
@@ -4640,6 +4660,7 @@ class selfservices extends CI_Controller
       $approvers          = $this->selfservices_model->GET_USER_APPROVERS($overtime_assign->empl_id, 'tbl_approvers');
       $this->overtime_action_approve($overtime_assign);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk approved overtime requests');
     $this->session->set_flashdata('SUCC', 'Overtime request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4664,6 +4685,7 @@ class selfservices extends CI_Controller
 
     $remarks            = $input_data['remarks'];
     $this->overtime_action_reject($overtime_assign, $remarks);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected overtime request');
     $this->session->set_flashdata('SUCC', 'Overtime request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4682,6 +4704,7 @@ class selfservices extends CI_Controller
       $overtime_assign  = $this->selfservices_model->GET_OVERTIME_ASSIGN($id);
       $this->overtime_action_reject($overtime_assign);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk rejected overtime requests');
     $this->session->set_flashdata('SUCC', 'Overtime request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4697,6 +4720,7 @@ class selfservices extends CI_Controller
     $approver_name        = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $empl_approvers       = $this->selfservices_model->GET_USER_APPROVERS($input_data['empl_id'], 'tbl_approvers');
     $this->holidaywork_action_approve($holiday_work_assign);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved holiday work request');
     $this->session->set_flashdata('SUCC', 'Holiday work request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4933,6 +4957,7 @@ class selfservices extends CI_Controller
       $holiday_work_assign  = $this->selfservices_model->GET_HOLIDAYWORK_ASSIGN($id);
       $this->holidaywork_action_approve($holiday_work_assign);
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk approved holiday work requests');
     $this->session->set_flashdata('SUCC', 'Holiday Work request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -4946,6 +4971,7 @@ class selfservices extends CI_Controller
     $approver               = $this->selfservices_model->GET_EMPLOYEE_SPECIFIC_ROW($user_id);
     $approver_name          = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $this->holidaywork_action_reject($holiday_work, $input_data['remarks']);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected holiday work request');
     $this->session->set_flashdata('SUCC', 'Holiday work request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -5001,6 +5027,7 @@ class selfservices extends CI_Controller
       //     $this->selfservices_model->ADD_NOTIFICATION($notif_data);
       //   }
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk rejected holiday work requests');
     $this->session->set_flashdata('SUCC', 'Holiday Work request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -5019,6 +5046,7 @@ class selfservices extends CI_Controller
     // echo '<pre>';
     // var_dump($time_adjustment_assign);
     $this->time_adj_action_approved($time_adjustment_assign);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved time adjustment request');
     // if ($time_adjustment_assign->status == 'Pending 1') {
     //   $status                   = 'Pending 2';
     //   $description = "Time Adjustment Application Review for [TAD" . str_pad($id, 5, '0', STR_PAD_LEFT) . "] has been partially approved by " . $approver_name;
@@ -5326,6 +5354,7 @@ class selfservices extends CI_Controller
     $approver                   = $this->selfservices_model->GET_EMPLOYEE_SPECIFIC_ROW($user_id);
     $approver_name              = $this->system_functions->fomatName($approver->col_last_name, $approver->col_frst_name, $approver->col_midl_name);
     $this->time_adj_action_reject($time_adjustment_assign, $input_data['remarks']);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Rejected time adjustment request');
     $this->session->set_flashdata('SUCC', 'Time Adjustment request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -5396,6 +5425,7 @@ class selfservices extends CI_Controller
       //     $this->insert_approved_time_adjustment($id);
       //   }
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk approved time adjustment requests');
     $this->session->set_flashdata('SUCC', 'Time Adjustment request has been approved!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -5450,6 +5480,7 @@ class selfservices extends CI_Controller
       //     $this->selfservices_model->ADD_NOTIFICATION($notif_data);
       //   }
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk rejected time adjustment requests');
     $this->session->set_flashdata('SUCC', 'Time Adjustment request has been rejected!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -5578,6 +5609,7 @@ class selfservices extends CI_Controller
     // }
     $res = $this->selfservices_model->ADD_DATA('tbl_employee_tasks', $input_data);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added task');
       $this->session->set_flashdata('SUCC', 'Successfully added new request');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new request');
@@ -5616,6 +5648,7 @@ class selfservices extends CI_Controller
     //   return;
     $res = $this->selfservices_model->UPDATE_TASK($input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated task');
       redirect('selfservices/my_tasks');
     }
   }
@@ -6568,6 +6601,9 @@ class selfservices extends CI_Controller
 
     $res = $this->selfservices_model->ADD_SHIFT_REQUEST($input_data);
 
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed shift change request');
+    }
 
     if ($res && $input_data['status'] != 'Approved') {
       $requestor      = $this->selfservices_model->GET_REQUESTOR('shift', $res);
@@ -7010,6 +7046,7 @@ class selfservices extends CI_Controller
     } else {
       $res                                            = $this->selfservices_model->ADD_OFFSET_REQUEST($input_data);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed offset request');
         $this->session->set_flashdata('SUCC', 'Successfully added');
         if ($isApproversEnable == 0) {
           redirect('selfservices/my_offsets');
@@ -7953,6 +7990,7 @@ class selfservices extends CI_Controller
       echo json_encode(array('messageError' => $messageError . ' . Please reload page and try again'));
       return;
     }
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed leave request');
     $this->session->set_flashdata('SUCC', 'Successfully Added');
     echo json_encode(array('messageSuccess' => 'Successfully Submitted'));
   }
@@ -8037,6 +8075,7 @@ class selfservices extends CI_Controller
       $joinedNotAdded = '';
       if (count($added) > 0 && count($notAdded) < 1) {
         $joinedAdded = implode(', ', $added);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed leave request');
         $this->session->set_flashdata('SUCC', 'Successfully added: ' . $joinedAdded);
         redirect('selfservices/my_leaves');
       } else {
@@ -8180,6 +8219,7 @@ class selfservices extends CI_Controller
     $table = 'tbl_benefits_reimbursement';
     $res  = $this->selfservices_model->update_table_data($table, $input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited reimbursement');
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('benefits/reimbursement');
     } else {
@@ -8218,6 +8258,7 @@ class selfservices extends CI_Controller
     $table = 'tbl_benefits_reimbursement';
     $res  = $this->selfservices_model->update_table_data($table, $input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved reimbursement');
       $this->session->set_flashdata('SUCC', 'Successfully updated');
       redirect('selfservices/my_reimbursement');
     } else {
@@ -8240,6 +8281,7 @@ class selfservices extends CI_Controller
     $table = 'tbl_benefits_cashadvance';
     $res  = $this->selfservices_model->update_table_data($table, $input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Approved cash advance');
       $this->session->set_flashdata('SUCC', 'Successfully updated');
       redirect('selfservices/my_cashadvance');
     } else {
@@ -8667,6 +8709,10 @@ class selfservices extends CI_Controller
         $key = 'TECHNOS';
         $res = $this->selfservices_model->ADD_OVERTIME_REQUEST($input_data);
 
+        if ($res) {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed overtime request');
+        }
+
         if (!$res) {
             echo json_encode([
                 'messageError' => 'Failed to save overtime request'
@@ -8759,6 +8805,10 @@ class selfservices extends CI_Controller
     $input_data['approver5_b'] = $approvers || $approvers->approver_5b ? $approvers->approver_5b : 0;
 
     $res                = $this->selfservices_model->ADD_CHANGESHIFT_REQUEST($input_data);
+
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed shift change request');
+    }
 
     if ($res && $input_data['status'] == 'Approved') {
       $this->selfservices_model->UPDATE_CHANGESHIFT($input_data['empl_id'], $input_data['date_shift'], $input_data['request_shift']);
@@ -8859,6 +8909,10 @@ class selfservices extends CI_Controller
 
     $res                = $this->selfservices_model->ADD_CHANGEOFF_REQUEST($input_data);
 
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed change-off request');
+    }
+
     if ($res && $input_data['status'] != 'Approved') {
       $requestor      = $this->selfservices_model->GET_REQUESTOR('changeOff', $res);
       $description    = "Change Off Application Review for [CHO" . str_pad($res, 5, '0', STR_PAD_LEFT) . "] by " . $requestor . " has been requested";
@@ -8953,6 +9007,10 @@ class selfservices extends CI_Controller
 
     $res                = $this->selfservices_model->ADD_UNDERTIME_REQUEST($input_data);
 
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed undertime request');
+    }
+
     if ($res && $input_data['status'] != 'Approved') {
       $requestor      = $this->selfservices_model->GET_REQUESTOR('undertimeRequest', $res);
       $description    = "Undertime Application Review for [UND" . str_pad($res, 5, '0', STR_PAD_LEFT) . "] by " . $requestor . " has been requested";
@@ -9034,6 +9092,9 @@ class selfservices extends CI_Controller
     $input_data['approver5'] = $approvers || $approvers->approver_5a ? $approvers->approver_5a : 0;
     $res                = $this->selfservices_model->ADD_EXEMPTUT_REQUEST($input_data);
 
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed exempt undertime request');
+    }
 
     if ($res && $input_data['status'] != 'Approved') {
       $requestor      = $this->selfservices_model->GET_REQUESTOR('shiftrequest', $res);
@@ -9271,6 +9332,9 @@ class selfservices extends CI_Controller
     $input_data['approver4'] = $approvers && $approvers->approver_4a ? $approvers->approver_4a : 0;
     $input_data['approver5'] = $approvers && $approvers->approver_5a ? $approvers->approver_5a : 0;
     $res                                            = $this->selfservices_model->ADD_HOLIDAY_WORK($input_data);
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Filed holiday work request');
+    }
     $this->session->set_flashdata('SUCC', 'Successfully added');
     if ($this->isApproversEnable == 0) {
       redirect('selfservices/my_holiday_work');
@@ -9630,6 +9694,7 @@ class selfservices extends CI_Controller
     // }
     $res = $this->selfservices_model->ADD_DATA('tbl_hr_supports', $input_data);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added support request');
       $this->session->set_flashdata('SUCC', 'Successfully added');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
@@ -9675,6 +9740,7 @@ class selfservices extends CI_Controller
     $input_data['edit_user'] = $this->session->userdata('SESS_USER_ID');
     $res = $this->selfservices_model->UPDATE_SUPPORT($input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated support request');
       $this->session->set_flashdata('SUCC', 'Successfully updated');
     }
     redirect('selfservices/my_support_requests');
@@ -9793,6 +9859,7 @@ class selfservices extends CI_Controller
     // }
     $res = $this->selfservices_model->ADD_DATA('tbl_hr_complaints', $input_data);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added complaint');
       $this->session->set_flashdata('SUCC', 'Successfully added');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
@@ -9835,6 +9902,7 @@ class selfservices extends CI_Controller
     $input_data['edit_user'] = $this->session->userdata('SESS_USER_ID');
     $res = $this->selfservices_model->UPDATE_COMPLAINT($input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated complaint');
       $this->session->set_flashdata('SUCC', 'Successfully updated');
     }
     redirect('selfservices/my_complaints');
@@ -9972,6 +10040,7 @@ class selfservices extends CI_Controller
     // }
     $res = $this->selfservices_model->ADD_DATA('tbl_hr_warnings', $input_data);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added warning');
       $this->session->set_flashdata('SUCC', 'Successfully added');
     } else {
       $this->session->set_flashdata('ERR', 'Fail to add new data');
@@ -10013,6 +10082,7 @@ class selfservices extends CI_Controller
     $input_data['edit_user'] = $this->session->userdata('SESS_USER_ID');
     $res = $this->selfservices_model->UPDATE_WARNING($input_data, $id);
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated warning');
       $this->session->set_flashdata('SUCC', 'Successfully updated');
     }
     redirect('selfservices/my_warnings');
@@ -10294,6 +10364,7 @@ class selfservices extends CI_Controller
     $skill                                   = $this->input->post('INSRT_SKILL_NAME');
     $level                                   = $this->input->post('INSRT_SKILL_LEVEL');
     $this->selfservices_model->MOD_INSRT_SKILL($employee_id, $skill, $level);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added new skill');
     $this->session->set_userdata('SESS_SUCC_INSRT_SKILL', 'Skill Added Successfully!');
     redirect('profile');
   }
@@ -10313,6 +10384,7 @@ class selfservices extends CI_Controller
     $home_address                            = $this->input->post('UPDT_EMPL_HOME_ADDR');
     $current_address                         = $this->input->post('UPDT_EMPL_CURR_ADDR');
     $this->selfservices_model->MOD_UPDT_EMPLOYEE_INFO($employee_id, $lastname, $middlename, $firstname, $birthday, $gender, $marital_status, $shirt_size, $nationality, $home_address, $current_address, $employee_key);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employee info');
     $this->session->set_userdata('SESS_SUCC_UPDT_EMPL_INFO', 'Updated Successfully!');
     redirect('profile');
   }
@@ -10325,6 +10397,7 @@ class selfservices extends CI_Controller
     $work_number                             = $this->input->post('UPDT_EMPL_WORK_NUMBER');
     $personal_number                         = $this->input->post('UPDT_EMPL_PERS_NUMBER');
     $this->selfservices_model->MOD_UPDT_EMPLOYEE_CONTACT($work_email, $personal_email, $work_number, $personal_number, $employee_key);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employee contact');
     $this->session->set_userdata('SESS_SUCC_UPDT_EMPL_CONTACT', 'Contacts Updated Successfully!');
     redirect('profile');
   }
@@ -10348,6 +10421,7 @@ class selfservices extends CI_Controller
     $education_id                           = $this->input->get('delete_id');
     $employee_id                            = $this->input->get('employee_id');
     $this->selfservices_model->MOD_DLT_EDUCATION($education_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted education record');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_EDUC', 'Education Background Deleted');
     redirect('profile');
   }
@@ -10377,6 +10451,7 @@ class selfservices extends CI_Controller
     $certification_id                       = $this->input->get('delete_id');
     $employee_id                            = $this->input->get('employee_id');
     $this->selfservices_model->MOD_DLT_LICENSE($certification_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted certification');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_CERT', 'Certification Deleted!');
     redirect('profile');
   }
@@ -10404,6 +10479,7 @@ class selfservices extends CI_Controller
     $skill_id                               = $this->input->get('delete_id');
     $employee_id                            = $this->input->get('employee_id');
     $this->selfservices_model->MOD_DLT_SKILL($skill_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted skill');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_SKILL', 'Certification Deleted!');
     redirect('profile');
   }
@@ -10426,6 +10502,7 @@ class selfservices extends CI_Controller
     $national_id                            = htmlentities($this->input->post('UPDT_ID_NAT'));
     $passport                               = htmlentities($this->input->post('UPDT_ID_PSSP'));
     $this->selfservices_model->MOD_UPDT_EMPLOYEE_ID($sss, $hdmf, $philhealth, $tin, $drivers_license, $national_id, $passport, $employee_id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employee ID');
     $this->session->set_userdata('SESS_SUCC_UPDT', 'Updated Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/ids'</script>";
   }
@@ -10481,6 +10558,7 @@ class selfservices extends CI_Controller
         $data_upload                        = array('employee_file' => $this->upload->data());
         $document_file                      = $data_upload['employee_file']['file_name'];
         $this->selfservices_model->MOD_INSRT_DOC($document_file, $document_name, $employee_id);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added employee document');
         $this->session->set_userdata('SESS_SUCC_ADD_EMPL_DOC', 'Document Added Successfully!');
         echo "<script>window.location.href='" . base_url() . "profile/documents'</script>";
       }
@@ -10499,6 +10577,7 @@ class selfservices extends CI_Controller
     if (file_exists($filestring)) {
       unlink($filestring);
       $this->selfservices_model->MOD_DLT_DOCU($document_id);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted employee document');
       $this->session->set_userdata('SESS_SUCC_DLT_EMPL_DOC', 'Document Deleted Successfully!');
       echo "<script>window.location.href='" . base_url() . "employees/documents?id=" . $employee_id . "'</script>";
     } else {
@@ -10518,6 +10597,7 @@ class selfservices extends CI_Controller
     if (($status == '') || ($status == 'in-stockroom')) {
       $this->selfservices_model->MOD_INSRT_ASSET_LOGS($assign_to, $user_id, $issued_on, $asset_id);
       $this->selfservices_model->MOD_UPDT_ASSET_STATUS_TRANSFER($assign_to, $issued_on, $user_id, $asset_id);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added employee asset');
       $this->session->set_userdata('SESS_SUCC_MSG_TRANSFER_TO_EMPLOYEE', 'Assigned Successfully!');
       echo "<script>window.location.href='" . base_url() . "profile/assets'</script>";
     } else if ($status == 'in-use') {
@@ -10549,6 +10629,7 @@ class selfservices extends CI_Controller
       $INSRT_EMER_HPHN,
       $INSRT_EMER_ADDR
     );
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added emergency contact');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_EMERGENCY', 'Emergency Contact Added Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/emergency'</script>";
   }
@@ -10558,6 +10639,7 @@ class selfservices extends CI_Controller
     $DATA_ID                                = $this->input->get('delete_id');
     $employee_id                            = $this->input->get('employee_id');
     $this->selfservices_model->MOD_DLT_EMERGENCY($DATA_ID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted emergency contact');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_EMERGENCY', 'Emergency Contact Deleted Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/emergency'</script>";
   }
@@ -10589,6 +10671,7 @@ class selfservices extends CI_Controller
       $UPDT_EMER_ADDR,
       $DATA_ID
     );
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated emergency contact');
     $this->session->set_userdata('SESS_SUCC_MSG_UPDT_EMERGENCY', 'Emergency Contact Updated Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/emergency'</script>";
   }
@@ -10601,6 +10684,7 @@ class selfservices extends CI_Controller
     $INSRT_DEPT_GNDR                        = $this->input->post('INSRT_DEPT_GNDR');
     $INSRT_DEPT_RELA                        = $this->input->post('INSRT_DEPT_RELA');
     $this->selfservices_model->MOD_INSRT_DEPENDENTS($INSRT_DEPT_EMPID, $INSRT_DEPT_NAME, $INSRT_DEPT_BDAY, $INSRT_DEPT_GNDR, $INSRT_DEPT_RELA);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added dependent');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_DEPENDENTS', 'Dependents Added Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/dependents'</script>";
   }
@@ -10610,6 +10694,7 @@ class selfservices extends CI_Controller
     $DATA_ID                                = $this->input->post('delete_id');
     $employee_id                            = $this->input->post('employee_id');
     $this->selfservices_model->MOD_DLT_DEPENDENTS($DATA_ID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted dependent');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_DEPENDENTS', 'Dependents Deleted Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/dependents'</script>";
   }
@@ -10630,6 +10715,7 @@ class selfservices extends CI_Controller
     $UPDT_DEPT_RELA                         = $this->input->post('UPDT_DEPT_RELA');
     $DATA_ID                                = $this->input->post('UPDT_DEPT_ID');
     $this->selfservices_model->MOD_UPDT_DEPENDENTS($UPDT_DEPT_EMPID, $UPDT_DEPT_NAME, $UPDT_DEPT_BDAY, $UPDT_DEPT_GNDR, $UPDT_DEPT_RELA, $DATA_ID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated dependent');
     $this->session->set_userdata('SESS_SUCC_MSG_UPDT_DEPENDENTS', 'Dependents Updated Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/dependents'</script>";
   }
@@ -10641,6 +10727,7 @@ class selfservices extends CI_Controller
     $INSRT_NOTE_DESC                        = $this->input->post('INSRT_NOTE_DESC');
     $INSRT_NOTE_EMID                        = $this->input->post('INSRT_NOTE_EMID');
     $this->selfservices_model->MOD_INSRT_NOTES($INSRT_NOTE_CRBY, $INSRT_NOTE_CRDT, $INSRT_NOTE_DESC, $INSRT_NOTE_EMID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added notes');
     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_NOTES', 'Note Added Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/notes'</script>";
   }
@@ -10649,6 +10736,7 @@ class selfservices extends CI_Controller
   {
     $DATA_ID                            = $_GET['delete_id'];
     $this->selfservices_model->MOD_DLT_NOTES($DATA_ID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted notes');
     $this->session->set_userdata('SESS_SUCC_MSG_DLT_NOTES', 'Note Deleted Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/notes'</script>";
   }
@@ -10668,6 +10756,7 @@ class selfservices extends CI_Controller
     $UPDT_NOTE_EMID                         = $this->input->post('UPDT_NOTE_EMID');
     $DATA_ID                                = $this->input->post('UPDT_NOTE_ID');
     $this->selfservices_model->MOD_UPDT_NOTES($UPDT_NOTE_CRBY, $UPDT_NOTE_CRDT, $UPDT_NOTE_DESC, $UPDT_NOTE_EMID, $DATA_ID);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated notes');
     $this->session->set_userdata('SESS_SUCC_MSG_UPDT_NOTES', 'Note Updated Successfully!');
     echo "<script>window.location.href='" . base_url() . "profile/notes'</script>";
   }
@@ -10711,6 +10800,7 @@ class selfservices extends CI_Controller
         $data_upload                        = array('employee_image' => $this->upload->data());
         $user_img                           = $data_upload['employee_image']['file_name'];
         $this->selfservices_model->INSERT_EMPLOYEE_IMAGE($user_img, $userID);
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated profile photo');
         $this->session->set_userdata('SESS_SUCC_UPDT_IMG', 'Profile Updated!');
       } else {
         $error                              = array('error' => $this->upload->display_errors());
@@ -10729,6 +10819,7 @@ class selfservices extends CI_Controller
     $id = $this->input->post('rowId');
     $status = "Withdrawn";
     $res = $this->selfservices_model->MOD_UPDATE_LEAVE_STATUS($id, $status);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Withdrew leave request');
     $this->session->set_flashdata('SUCC', 'Withdraw Leave Updated Successfully!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -10739,6 +10830,7 @@ class selfservices extends CI_Controller
     $remarks = $this->input->post('remarks');
     $status = "Withdrawn";
     $res = $this->selfservices_model->MOD_UPDATE_LEAVE_STATUS($id, $remarks, $status);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Cancelled leave request');
     $this->session->set_flashdata('SUCC', 'Withdraw Leave Updated Successfully!');
     redirect($this->input->server('HTTP_REFERER'));
   }
@@ -11024,6 +11116,7 @@ class selfservices extends CI_Controller
       foreach ($ids as $id) {
         $this->selfservices_model->update_shift_approval($id, $status, $editUser);
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk approved shift requests');
 
       echo json_encode(['success_message' => 'Shift Requests Successfully Updated!']);
     } catch (Exception $e) {
@@ -11044,6 +11137,7 @@ class selfservices extends CI_Controller
       foreach ($ids as $id) {
         $this->selfservices_model->update_shift_approval($id, $status, $userId);
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk rejected shift requests');
 
       $response = ['success_message' => 'Shift Requests Rejected Successfully!'];
     } catch (Exception $e) {

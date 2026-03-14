@@ -4,37 +4,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Logger {
     protected $CI;
 
-
-    // Define a custom table name for activity log
     private $table_name = 'tbl_activity_logs';
 
-    // Define a custom field name for user id
-    private $create_date='create_date';
-    private $empl_id='empl_id';
-    private $description='description';
-    
     public function __construct()
 	{
-		// Get an instance of CodeIgniter
 		$this->CI =& get_instance();
-
-        // Load the database library
-        $this->CI->load->database();
+		$this->CI->load->database();
 	}
 
-	public function log_activity($user_id,$description)
+	public function log_activity($user_id, $description)
 	{
-        // Get the user id from session data or default to 0
+        $data = array(
+            'create_date'   => date('Y-m-d H:i:s'),
+            'empl_id'       => $user_id,
+            'description'   => $description,
+            'ip_address'    => $this->get_ip_address(),
+            'computer_name' => $this->get_computer_name()
+        );
 
-        // Get the browser of the user or default to unkno
-
-        // Get the current date and time in Y-m-d H:i:s format
-        $date_time = date('Y-m-d H:i:s');
-
-        // Prepare an array of data to insert into the database table
-        $data = array($this->create_date=>$date_time,$this->empl_id=>$user_id,$this->description=>$description);
-
-        // Insert the data into the database table
         return $this->CI->db->insert($this->table_name, $data);
+	}
+
+	private function get_ip_address()
+	{
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip_list = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            return trim($ip_list[0]);
+        } elseif (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        } else {
+            return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        }
+	}
+
+	private function get_computer_name()
+	{
+        $ip = $this->get_ip_address();
+        $hostname = @gethostbyaddr($ip);
+        return ($hostname && $hostname !== $ip) ? $hostname : 'Unknown';
 	}
 }

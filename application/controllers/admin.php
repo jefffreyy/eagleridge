@@ -11,6 +11,7 @@ class admin extends CI_Controller
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('session');
+        $this->load->library('logger');
     }
     
     function index()
@@ -40,6 +41,7 @@ class admin extends CI_Controller
 
         if ($response) {
             $this->session->set_userdata('SESS_ADMIN', 1);
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Admin logged in');
             redirect('admin/user_select');
         } else {
             redirect('admin');
@@ -49,6 +51,7 @@ class admin extends CI_Controller
     function login_user(){
         $user_id                                                = $this->input->get('id');
         $this->session->set_userdata('SESS_USER_ID', $user_id);
+        $this->logger->log_activity($user_id, 'Admin logged in');
         if (empty($user_id)) {
             redirect('admin');
             return;
@@ -63,6 +66,7 @@ class admin extends CI_Controller
     }
     
     function signout(){
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Admin logged out');
         $this->session->unset_userdata('SESS_ADMIN');
         redirect('admin');
     }

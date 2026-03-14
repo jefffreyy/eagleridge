@@ -3594,6 +3594,7 @@
                     // }
 
 
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added new employee');
                     $this->session->set_userdata('SESS_SUCC_INSRT', 'New Employee was added successfully!');
                     redirect('employees/directories');
                 }
@@ -3605,6 +3606,7 @@
             // }
 
             if ($userID) {
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added new employee');
                 $this->session->set_userdata('SESS_SUCC_INSRT', 'New Employee was added successfully!');
                 redirect('employees/directories');
             }
@@ -3615,6 +3617,7 @@
             $url_directory              = $this->input->post('URL_DIRECTORY');
             $input_data                 = $this->input->post();
             $this->employees_model->INSERT_EMPLOYEE_IMAGE($input_data['user_image'], $userID);
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employee photo');
             $this->session->set_userdata('SESS_SUCC_UPDT_IMG', 'Profile Updated!');
             echo "<script>window.location.href='" . base_url() . "employees/" . $url_directory . "?id=" . $userID . "'</script>";
             return;
@@ -3907,6 +3910,7 @@
             if ($is_deleted && isset($input_data["field_data"])) {
                 $res = $this->employees_model->ADD_EMPL_CUSTOMIZE_FIELD($input_data["field_data"]);
                 if ($res) {
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated other details for employee ID: ' . $empl_id);
                     $this->session->set_flashdata('SUCC', 'Successfully Updated Custom Fields');
                 } else {
                     $this->session->set_flashdata('ERR', 'Unable to save informations');
@@ -4036,6 +4040,7 @@
                         $to_val = $new_row[2];
                         $this->employees_model->ADD_EMPLOYEE_LOGS($edit_id, $empl_id, $category, $from_val, $to_val);
                     }
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated personal details for employee ID: ' . $user_id);
                     $this->session->set_flashdata('SUCC', 'Personal details updated successfully!');
                     redirect('employees/personal?id=' . $user_id);
                     // redirect('employees/edit_personal_detail/'.$user_id);
@@ -4268,6 +4273,7 @@
                         $to_val = $new_row[2];
                         $this->employees_model->ADD_EMPLOYEE_LOGS($edit_id, $empl_id, $category, $from_val, $to_val);
                     }
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated employment details for employee ID: ' . $user_id);
                     $this->session->set_flashdata('SUCC', 'Employment details updated successfully!');
                     redirect('employees/personal?id=' . $user_id);
                 } catch (Exception $e) {
@@ -4371,6 +4377,7 @@
                         $to_val = $new_row[2];
                         $this->employees_model->ADD_EMPLOYEE_LOGS($edit_id, $empl_id, $category, $from_val, $to_val);
                     }
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated ID details for employee ID: ' . $user_id);
                     $this->session->set_flashdata('SUCC', 'ID details updated successfully!');
                     // echo '<pre>';
                     // print_r('flashdata');
@@ -4390,6 +4397,7 @@
         function user_activation($user_id, $is_disabled)
         {
             $response = $this->employees_model->SET_ACTIVATION_EMPLOYEE($user_id, $is_disabled);
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated user activation for employee ID: ' . $user_id);
             if ($response && $response['messageError']) {
                 redirect("employees/personal?id=$user_id&messageError=" . $response['messageError']);
             }
@@ -4471,6 +4479,7 @@
                         $to_val = $new_row[2];
                         $this->employees_model->ADD_EMPLOYEE_LOGS($edit_id, $empl_id, $category, $from_val, $to_val);
                     }
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated compensation for employee ID: ' . $user_id);
                     $this->session->set_flashdata('SUCC', 'Compensation details updated successfully!');
                     redirect('employees/personal?id=' . $user_id);
                 } catch (Exception $e) {
@@ -5642,6 +5651,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated work history');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5681,6 +5691,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated documents');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5720,6 +5731,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated emergency contacts');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5759,6 +5771,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated dependents');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5798,6 +5811,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated education');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5838,6 +5852,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated skills');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5878,6 +5893,7 @@
                         // return;
                     }
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated work history');
             } catch (Exception $e) {
                 $response = array('error_message' => 'Error updating data: ' . $e->getMessage());
                 $this->output->set_content_type('application/json')->set_output(json_encode($response));
@@ -5886,31 +5902,37 @@
         }
         function bulk_work_history()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated work history');
             $this->load->view('templates/header');
             $this->load->view('modules/employees/bulk_work_history_views');
         }
         function bulk_education()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated education');
             $this->load->view('templates/header');
             $this->load->view('modules/employees/bulk_education_views');
         }
         function bulk_documents()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated documents');
             $this->load->view('templates/header');
             $this->load->view('modules/employees/bulk_documents_views');
         }
         function bulk_emergency_contacts()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated emergency contacts');
             $this->load->view('templates/header');
             $this->load->view('modules/employees/bulk_emergency_contacts_views');
         }
         function bulk_dependents()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated dependents');
             $this->load->view('templates/header');
             $this->load->view('modules/employees/bulk_dependents_views');
         }
         function bulk_skills()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated skills');
             $data['C_SKILLS_NAME']              = $this->employees_model->GET_SKILL_NAME();
             $data['C_SKILLS_LEVEL']             = $this->employees_model->GET_SKILL_LEVEL();
             $this->load->view('templates/header');
@@ -6141,6 +6163,7 @@
                     $response['messageError'] = "Found duplicates: $messageError will not be added";
                 }
                 if ($messageSuccess) {
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted/Updated employee data');
                     $response['messageSuccess'] = "$messageSuccess added successfully";
                 }
                 if (empty($response)) {
@@ -6169,6 +6192,7 @@
                     $this->employees_model->update_data($data_row, $this->session->userdata('SESS_USER_ID'));
                 }
 
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted/Updated employee data');
                 $response = array('success_message' => 'Data updated successfully');
             } catch (Exception $e) {
                 // log_message('error', 'Error updating data: ' . $e->getMessage());
@@ -6187,6 +6211,7 @@
                 foreach ($data as $data_row) {
                     $this->employees_model->UPDATE_SALARY_DETAIL($data_row, $this->session->userdata('SESS_USER_ID'));
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated salary for employee ID: ' . (isset($data[0]['id']) ? $data[0]['id'] : ''));
                 $response = array('success_message' => 'Data updated successfully');
             } catch (Exception $e) {
                 $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -6202,6 +6227,7 @@
                 foreach ($data as $data_row) {
                     $this->employees_model->UPDATE_SETUP_ORGANIZATION($data_row, $this->session->userdata('SESS_USER_ID'));
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated organization setup');
                 $response = array('success_message' => 'Data updated successfully');
             } catch (Exception $e) {
                 $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -6211,6 +6237,7 @@
 
         function upload_employee_photo()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Uploaded employee photo');
             $this->load->view('templates/header');
             $this->load->view('modules/employees/bulk_image_upload_views');
         }
@@ -6430,12 +6457,13 @@
                         }
                     }
 
+                    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Imported CSV employee updates');
                     $this->session->set_userdata('SESS_SUCC_MSG_INSRT_CSV', 'CSV File Successfully Uploaded!');
                     redirect('employees/directories', 'refresh');
                 }
-            } else # else for not successful upload            
+            } else # else for not successful upload
             {
-                $error =  $this->upload->display_errors(); #displaying of the error   
+                $error =  $this->upload->display_errors(); #displaying of the error
                 //echo ("<script language='javascript'> alert('".$error."'); windows.history.back();</script>");
                 $this->session->set_userdata('SESS_ERR_MSG_INSRT_CSV', $error);
                 redirect('employees/directories', 'refresh');
@@ -6668,8 +6696,10 @@
                         }
                         $this->session->set_userdata('SESS_ERR_MSG_INSRT_CSV', count($err_duplication) . ' Duplicated Employee ids detected. <br>');
                     } else if ((count($succ_inserted) > 0) && (count($err_duplication) == 0)) {
+                        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Imported new employees via CSV');
                         $this->session->set_userdata('SESS_SUCC_MSG_INSRT_CSV', 'CSV File Successfully Uploaded!');
                     } else if ((count($succ_inserted) > 0) && (count($err_duplication) > 0)) {
+                        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Imported new employees via CSV');
                         $duplicated_ids = '';
                         foreach ($err_duplication as $err_duplication_row) {
                             $duplicated_ids .= $err_duplication_row . ' <br>';
@@ -6680,9 +6710,9 @@
                     // redirect('employees','refresh');
                     redirect('employees/directories', 'refresh'); //redirect('attendance/generate_rows');
                 }
-            } else # else for not successful upload            
+            } else # else for not successful upload
             {
-                $error =  $this->upload->display_errors(); #displaying of the error   
+                $error =  $this->upload->display_errors(); #displaying of the error
                 //echo ("<script language='javascript'> alert('".$error."'); windows.history.back();</script>");
                 $this->session->set_userdata('SESS_ERR_MSG_INSRT_CSV', $error);
                 redirect('employees/directories', 'refresh');
@@ -6772,6 +6802,7 @@
                 $this->employees_model->UPDATE_EMPLOYEE_DISABLED($id, $value);
             }
 
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk activated employees');
             redirect('employees/directories');
         }
 
@@ -6787,6 +6818,7 @@
                 $this->employees_model->UPDATE_EMPLOYEE_DISABLED($id, $value);
             }
 
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk deactivated employees');
             redirect('employees/directories');
         }
 
@@ -6798,6 +6830,7 @@
                 foreach ($data as $data_row) {
                     $this->employees_model->update_assignment_data($data_row);
                 }
+                $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll assignment');
                 $response = array('success_message' => 'Data updated successfully');
             } catch (Exception $e) {
                 $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
@@ -6809,6 +6842,7 @@
 
         function offboarding()
         {
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Processed employee offboarding');
             $limit                      = $this->input->get('row') ? $this->input->get('row')  : 25;
             $page                       = $this->input->get('page') ? $this->input->get('page') : 1;
             $offset                     = $limit * ($page - 1);

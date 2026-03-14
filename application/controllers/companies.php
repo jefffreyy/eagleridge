@@ -9,6 +9,7 @@ class companies extends CI_Controller
     $this->load->model('templates/main_table_01_model');
     $this->load->model('templates/main_table_02_model');
     $this->load->model('modules/companies_model');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -79,6 +80,7 @@ class companies extends CI_Controller
     $vision           = $this->input->post('vision');
 
     $this->companies_model->EDIT_ABOUT_ALL($about, $mission, $vision);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated about us');
     $this->session->set_userdata('MSG_EDIT_ABOUT_US', 'About the company updated successfully!');
     redirect('companies/about_the_company');
   }
@@ -127,6 +129,7 @@ class companies extends CI_Controller
       }
     }
     $res = $this->companies_model->UPDATE_ANNOUNCEMENT($input_data['id'], $input_data);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated announcement');
     $this->session->set_flashdata('SUCC', 'Successfully Updated');
     redirect('companies/announcements');
   }
@@ -154,6 +157,7 @@ class companies extends CI_Controller
     $table        = $input_data['table'];
     $ids          = explode(' ', $input_data['list_mark_ids']);
     $res          = $this->companies_model->BULK_ACTIVATE($table, 'Active', $ids);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Activated announcement');
     redirect($this->input->server('HTTP_REFERER'));
   }
 
@@ -163,6 +167,7 @@ class companies extends CI_Controller
     $table        = $input_data['table'];
     $ids          = explode(' ', $input_data['list_mark_ids']);
     $res          = $this->companies_model->BULK_ACTIVATE($table, 'Inactive', $ids);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deactivated announcement');
     redirect($this->input->server('HTTP_REFERER'));
   }
 
@@ -218,6 +223,7 @@ class companies extends CI_Controller
         $input_data['edit_user']=$this->session->userdata('SESS_USER_ID');
         $res=$this->companies_model->ADD_DATA('tbl_hr_knowledgebases',$input_data);
         if($res>0){
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added knowledge base');
             redirect('companies/knowledges_bases');
         }
   }
@@ -235,6 +241,7 @@ class companies extends CI_Controller
         $input_data['edit_user']= $this->session->userdata('SESS_USER_ID');
         $res=$this->companies_model->UPDATE_DATA('tbl_hr_knowledgebases',$input_data,$id);
         if($res>0){
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated knowledge base');
             redirect('companies/knowledges_bases');
         }
         

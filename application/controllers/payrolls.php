@@ -12,6 +12,7 @@
       $this->load->model('templates/main_table_02_model');
       $this->load->model('templates/main_table_01_model');
       $this->load->library('pagination');
+      $this->load->library('logger');
 
       // auto login starts
       $this->load->model('admin_model');
@@ -64,6 +65,7 @@
                 $this->employees_model->UPDATE_SALARY_DETAIL($data_row, $this->session->userdata('SESS_USER_ID'));
             }
             $response = array('success_message' => 'Data updated successfully');
+            $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated salary details');
         } catch (Exception $e) {
             $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
         }
@@ -235,6 +237,7 @@
       $res = $this->payrolls_model->update_settings($input_data);
       if ($res) {
         $this->session->set_flashdata('SUCC', 'Home Settings Successfully updated');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll settings');
       } else {
         $this->session->set_flashdata('ERR', 'Home Settings Unable to update');
       }
@@ -603,6 +606,7 @@
       // echo $id;
       $res          = $this->payrolls_model->DELETE_PAYSLIP_DATA($array_id);
       $this->session->set_userdata('SESS_SUCC_MSG_DLT_PAYROLL', 'Deleted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted payslip');
       redirect('payrolls/payslip_generator');
     }
     function deductions()
@@ -663,6 +667,7 @@
       $res_new                          = $this->payrolls_model->ADD_DEDUCTION($inputs);
       if ($res_new) {
         $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully added!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added deduction');
       } else {
         $this->session->set_flashdata('SESS_ERR_LOAN', 'Fail to add new data!');
       }
@@ -777,6 +782,7 @@
           }
         }
         $response = array('success_message' => 'Data updated successfully');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated other deductions');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
       }
@@ -789,6 +795,7 @@
       $res_new                          = $this->payrolls_model->UPDATE_DEDUCTION($inputs, $id);
       if ($res_new) {
         $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully Updated!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated deduction');
       } else {
         $this->session->set_flashdata('SESS_ERR_LOAN', 'Fail to Update!');
       }
@@ -853,6 +860,7 @@
       $res_new                                      = $this->payrolls_model->ADD_CASH_ADV($inputs);
       if ($res_new) {
         $this->session->set_userdata('SESS_SUCCESS', 'Successfully added!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added cash advance');
       } else {
         $this->session->set_userdata('SESS_ERROR', 'Fail to add new data!');
       }
@@ -872,12 +880,13 @@
       $res_new                                      = $this->payrolls_model->UPDATE_CASH_ADV($inputs, $id);
       if ($res_new) {
         $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully Updated!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated cash advance');
       } else {
         $this->session->set_flashdata('SESS_ERR_LOAN', 'Fail to Update!');
       }
       redirect('payrolls/cash_advances');
     }
-    //   
+    //
     function bulk_activate()
     {
       $loan_ids                                  = explode(',', $this->input->post('active'));
@@ -888,6 +897,7 @@
       }
       $res                                        = $this->payrolls_model->UPDATE_BULK_ACTIVATE($data, $table);
       $this->session->set_userdata('SESS_SUCCESS', 'Successfully Updated!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk activated payroll records');
       if ($table == 'tbl_payroll_deductions') {
         redirect('payrolls/deductions');
       }
@@ -908,6 +918,7 @@
       }
       $res                                           = $this->payrolls_model->UPDATE_BULK_ACTIVATE($data, $table);
       $this->session->set_userdata('SESS_SUCCESS', 'Successfully Updated!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk deactivated payroll records');
 
       if ($table == 'tbl_payroll_deductions') {
         redirect('payrolls/deductions');
@@ -2383,6 +2394,7 @@
       } else {
           // Otherwise, add a success message
           $response['success_message'] = "Data updated successfully";
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Generated payslips');
       }
       echo json_encode($response);
     }
@@ -2965,6 +2977,7 @@
         $this->delete_payslip_by_id($userId);
         $this->payrolls_model->delete_attendance_lock($empl_id, $cutoffPeriod);
         $response = array('success_message' => 'Payslips deleted successfully');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted payslip');
       } else {
         $response = array('fail_message' => 'Failed to delete!');
       }
@@ -3126,6 +3139,7 @@
         $this->payrolls_model->edit_allowance_assign_nontax($EMPL_ID, $NAME, $VAL);
       }
       $this->SSS_EE_TOTAL_DATA = $SSS_EE_TOTAL;
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited payslip');
       redirect($_SERVER['HTTP_REFERER']);
     }
     function generated_payslip($empl_id, $period)
@@ -3833,6 +3847,7 @@
       ];
       $this->payrolls_model->EDIT_GENERATED_PAYSLIP($array);
       $this->session->set_userdata('SESS_SUCCESS', 'Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited payslip');
       redirect('payrolls/edit_generated_payslip/' . $empl_id . '/' . $period);
     }
     function published_payslip($empl_id, $period)
@@ -4516,6 +4531,7 @@
       }
 
       $this->session->set_userdata('SESS_SUCCESS', 'Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Published payslip');
       // redirect('payrolls/generated');
 
       if (isset($_SERVER["HTTP_REFERER"])) {
@@ -4581,6 +4597,7 @@
       }
 
       $this->session->set_userdata('SESS_SUCCESS', 'Payslip Deleted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Bulk deleted published payslips');
       // redirect('payrolls/generated');
 
       if (isset($_SERVER["HTTP_REFERER"])) {
@@ -4760,6 +4777,7 @@
       $res_new                            = $this->payrolls_model->ADD_LOAN($inputs);
       if ($res_new) {
         $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully added new loan!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added loans');
       } else {
         $this->session->set_flashdata('SESS_ERR_LOAN', 'Fail to add new loan!');
       }
@@ -4879,6 +4897,7 @@
           $this->payrolls_model->UPDATE_USER_CUSTOM_CONTRIBUTION($id, $val, $year, $type);
         }
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated contribution settings');
       redirect('payrolls/custom_contributions');
     }
     function update_sss_custom_contribution()
@@ -4895,6 +4914,7 @@
           $this->payrolls_model->UPDATE_USER_CUSTOM_SSS_CONTRIBUTION($id, $val, $year);
         }
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated contribution settings');
       redirect('payrolls/sss_contributions');
     }
     function process_pagibig_custom_contribution($user_id, $val, $year)
@@ -4923,6 +4943,7 @@
           $this->payrolls_model->UPDATE_USER_CUSTOM_PAGIBIG_CONTRIBUTION($id, $val, $year);
         }
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated contribution settings');
       redirect('payrolls/pagibig_contributions');
     }
     function process_philhealth_custom_contribution($user_id, $val, $year)
@@ -4951,6 +4972,7 @@
           $this->payrolls_model->UPDATE_USER_CUSTOM_PHILHEALTH_CONTRIBUTION($id, $val, $year);
         }
       }
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated contribution settings');
       redirect('payrolls/philhealth_contributions');
     }
     function open_bir_form2316()
@@ -5899,6 +5921,7 @@
       $this->p080_payroll_mod->MOD_DLT_PAYROLL_DATA($payslip_id);
       $this->p080_payroll_mod->MOD_UNPAY_LOAN_PAYABLE($empl_cmid, $date_period);
       $this->session->set_userdata('SESS_SUCC_MSG_DLT_PAYROLL', 'Deleted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted payslip');
       redirect('payrolls/payslip_generator');
     }
     // Insert generated payroll
@@ -6135,6 +6158,7 @@
       $this->payrolls_model->MOD_INSRT_PAYROLL_DATA($data);
       // var_dump($DISP_LOAN_STRING);
       $this->session->set_userdata('SESS_SUCC_MSG_ADD_PAYROLL', 'Payroll Added!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Inserted payroll data');
       redirect('payrolls/payslip_generator');
     }
     // Comapanu contributions
@@ -6346,10 +6370,12 @@
           $new_load_id          = $check_loan_payable[0]->loan_id;
           $this->p080_payroll_mod->MOD_INSRT_LOAN_PAYABLE($new_load_id, $loan_type, $employee_cmid, $date, $installment, $cutoff_period);
           $this->session->set_userdata('SESS_SUCC_INSRT_LOAN', 'New Loan Added!');
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added loans');
           redirect('payroll/loans');
         } else {
           $this->p080_payroll_mod->MOD_INSRT_LOAN_PAYABLE($loan_id, $loan_type, $employee_cmid, $date, $installment, $cutoff_period);
           $this->session->set_userdata('SESS_SUCC_INSRT_LOAN', 'New Loan Added!');
+          $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added loans');
           redirect('payroll/loans');
         }
       } else {
@@ -6375,6 +6401,7 @@
       $res_new = $this->payrolls_model->UPDATE_LOAN($inputs, $id);
       if ($res_new) {
         $this->session->set_flashdata('SESS_SUCC_LOAN', 'Successfully Updated loan!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated loans');
       } else {
         $this->session->set_flashdata('SESS_ERR_LOAN', 'Fail to Update loan!');
       }
@@ -6641,6 +6668,7 @@
         $this->payrolls_model->UPDATE_ACTIVE_PAYROLL_SCHED($id, 'Active');
       }
       $this->session->set_userdata('succ_approved', 'Mark as Active Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Marked payroll active');
       redirect('payrolls/payroll_schedules');
     }
     function payroll_mark_inactive()
@@ -6651,6 +6679,7 @@
         $this->payrolls_model->UPDATE_ACTIVE_PAYROLL_SCHED($id, 'Inactive');
       }
       $this->session->set_userdata('succ_approved', 'Mark as Inactive Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Marked payroll inactive');
       redirect('payrolls/payroll_schedules');
     }
     function insert_payroll_sched()
@@ -6715,6 +6744,7 @@
 
       if ($res) {
         $this->session->set_flashdata('SUCC', 'Added Successfully!');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added payroll schedule');
       }
 
       redirect('payrolls/payroll_schedules');
@@ -6757,6 +6787,7 @@
       ($input_tard != null) ? $input_tard = 0 : $input_tard = 1;
       $this->payrolls_model->EDIT_PAYROLL_SCHEDULE($title, $year, $month, $start_date, $end_date, $payout_date, $payslip_schedule, $pay_freq, $con_period_1, $con_period_2, $con_period_3, $con_period_4, $con_period_5, $status, $input_sss, $input_phil, $input_pagibig, $input_wtax, $input_tax_allowance, $input_nontax_allowance, $input_loans, $input_adjustment, $input_tard, $id);
       $this->session->set_userdata('SESS_SUCCESS', 'Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited payroll schedule');
       redirect('payrolls/payroll_schedules');
     }
 
@@ -6785,6 +6816,7 @@
 
       $this->payrolls_model->EDIT_PAYROLL_SCHEDULE_CONTRIBUTION($cb_sss, $cb_phil, $cb_pagibig, $input_wtax, $input_ta, $input_nta, $input_loans, $input_adjustment, $input_tard, $period);
       $this->session->set_userdata('SESS_SUCCESS', 'Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated contribution settings');
       redirect($_SERVER["HTTP_REFERER"]);
     }
     // INSERT POSITION
@@ -6795,6 +6827,7 @@
       $payout_sched           = $this->input->post('payout_sched');
       $this->p175_payschedule_mod->MOD_INSRT_PAY_SCHED($date_range, $db_date_range, $payout_sched);
       $this->session->set_userdata('SESS_SUCC_MSG_INSRT_PAY_SCHED', 'Added Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added pay schedule');
       redirect('payrolls/payroll_schedules');
     }
     function updt_pay_schedule()
@@ -6805,6 +6838,7 @@
       $updt_payout_sched      = $this->input->post('updt_payout_sched');
       $this->p175_payschedule_mod->MOD_UPDT_PAY_SCHED($updt_date_range, $updt_db_date_range, $updt_payout_sched, $UPDT_PAY_SCHED_INPF_ID);
       $this->session->set_userdata('SESS_SUCC_MSG_UPDT_PAY_SCHED', 'Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated pay schedule');
       redirect('payrolls/payroll_schedules');
     }
     // DELETE POSITION
@@ -6813,6 +6847,7 @@
       $pay_schedule_id        = $this->input->get('delete_id');
       $this->p175_payschedule_mod->MOD_DLT_PAY_SCHED($pay_schedule_id);
       $this->session->set_userdata('SESS_SUCC_MSG_DLT_PAY_SCHED', 'Deleted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted pay schedule');
       redirect('payrolls/payroll_schedules');
     }
     // sss rates page
@@ -7203,6 +7238,7 @@
       $set_array['edit_user'] = $edit_user;
       $this->main_table_01_model->edit_table_row($table, $id, $set_array);
       $this->session->set_userdata('success', 'Submitted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Edited payroll data');
       redirect($module_name . "/" . $page_name);
     }
     function add_row()
@@ -7224,6 +7260,7 @@
       $set_array['edit_user'] = $edit_user;
       $this->main_table_01_model->add_table_row($table, $set_array);
       $this->session->set_userdata('success', 'Submitted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Added payroll data');
       redirect($module_name . "/" . $page_name);
     }
     function delete_row()
@@ -7235,6 +7272,7 @@
       $page_name    = $this->input->get('page');
       $this->main_table_01_model->delete_table_row($id, $table, $edit_user);
       $this->session->set_userdata('delete', 'Deleted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Deleted payroll data');
       redirect($module_name . "/" . $page_name);
     }
     function edit_bulk_status()
@@ -7263,6 +7301,7 @@
       // var_dump($status . $ids );
       $this->main_table_01_model->edit_bulk_status($table, $status, $ids_int, $edit_user);
       $this->session->set_userdata('success', 'Submitted Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated bulk payroll status');
       //  var_dump($ids_int);
       redirect($module_name . '/' . $page_name . '?page=' . $page . $row_url . $row . '&tab=' . $tab);
     }
@@ -7298,6 +7337,7 @@
           $this->payrolls_model->update_assignment_data($data_row);
         }
         $response = array('success_message' => 'Data updated successfully');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll data');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
       }
@@ -7313,6 +7353,7 @@
           $this->payrolls_model->update_custom_contribution_data($data_row, $year);
         }
         $response = array('success_message' => 'Data updated successfully');
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll data');
       } catch (Exception $e) {
         $response = array('warning_message' => 'Error updating data: ' . $e->getMessage());
       }
@@ -7332,6 +7373,7 @@
         }
       }
       $this->session->set_userdata('SESS_SUCCESS', 'Bulk Updated Successfully!');
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll assignment (bulk)');
       if (isset($_SERVER["HTTP_REFERER"])) {
         redirect($_SERVER["HTTP_REFERER"]);
       }
@@ -7530,6 +7572,7 @@
     function payslip_coordinates_setting(){
       $coordinates                   = $this->input->post();
       $this->payrolls_model->UPDATE_COORDINATES($coordinates);
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll data');
       redirect($this->input->server('HTTP_REFERER'));
     }
 
@@ -7555,6 +7598,7 @@
               $upload_img = $data_upload['update_image']['file_name'];
               $this->payrolls_model->INSERT_PAYSLIP_IMAGE($old_image, $upload_img); // save new image to the databaes
               $this->session->set_userdata('SESS_SUCCESS', 'Submitted Successfully');
+              $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Updated payroll data');
               // redirect('admin/emp_form');
           }
       }

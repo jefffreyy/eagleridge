@@ -16,6 +16,7 @@ class requests extends CI_Controller
     $this->load->library('encrypt');
     $this->load->library('technos_encryption');
     $this->load->library('system_functions');
+    $this->load->library('logger');
 
     // auto login starts
     $this->load->model('admin_model');
@@ -113,6 +114,7 @@ class requests extends CI_Controller
   function changeshift_withdraw($id)
   {
     $this->requests_model->CHANGESHIFT_WITHDRAW($id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Withdrew change shift request ID: ' . $id);
     $this->session->set_flashdata('SUCC', 'Change shift request has been Withdrawn!');
     redirect('requests/change_shift');
   }
@@ -159,6 +161,7 @@ class requests extends CI_Controller
   function changeoff_withdraw($id)
   {
     $this->requests_model->CHANGEOFF_WITHDRAW($id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Withdrew change off request ID: ' . $id);
     $this->session->set_flashdata('SUCC', 'Change off request has been Withdrawn!');
     redirect('requests/change_off');
   }
@@ -206,6 +209,7 @@ class requests extends CI_Controller
   function undertime_withdraw($id)
   {
     $this->requests_model->UNDERTIME_WITHDRAW($id);
+    $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Withdrew undertime request ID: ' . $id);
     $this->session->set_flashdata('SUCC', 'Undertime request has been Withdrawn!');
     redirect('requests/undertime');
   }
@@ -364,6 +368,7 @@ class requests extends CI_Controller
     }
 
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Created change shift request ID: ' . $res);
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('requests/change_shift');
       return;
@@ -463,6 +468,7 @@ class requests extends CI_Controller
     }
 
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Created change off request ID: ' . $res);
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('requests/change_off');
       return;
@@ -561,6 +567,7 @@ class requests extends CI_Controller
     }
 
     if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Created undertime request ID: ' . $res);
       $this->session->set_flashdata('SUCC', 'Successfully added');
       redirect('requests/undertime');
       return;
@@ -655,6 +662,7 @@ class requests extends CI_Controller
     } else {
       $res                                            = $this->requests_model->ADD_OFFSET_REQUEST($input_data);
       if ($res) {
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Created offset request ID: ' . $res);
         $this->session->set_flashdata('SUCC', 'Successfully added');
         if ($isApproversEnable == 0) {
           redirect('requests/apply_offsets');
@@ -905,6 +913,7 @@ function add_request_overtime()
         }
 
         // SUCCESS JSON RESPONSE
+        $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Created overtime request ID: ' . $res);
         echo json_encode([
             'status' => 'success',
             'redirect' => base_url('requests/overtime'),
@@ -977,6 +986,9 @@ function add_request_overtime()
     // }
     
     $res                                    = $this->overtimes_model->ADD_DATA('tbl_overtimes', $input_data);
+    if ($res) {
+      $this->logger->log_activity($this->session->userdata('SESS_USER_ID'), 'Created overtime request ID: ' . $res);
+    }
     $this->session->set_flashdata('SUCC', 'Successfully added');
     // if ($is_enable_approvers == 0) {
     //   redirect('overtimes/overtime');
